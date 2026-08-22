@@ -36,4 +36,4 @@
 - [x] Fix the EmailJS sender, template mapping, or delivery configuration.
 - [x] Verify the repair without creating duplicate real applications.
 - [x] Save a repaired Admissions checkpoint.
-- [ ] Save a new project checkpoint after the Admissions email-delivery repair.
+- [x] Save a new project checkpoint after the Admissions email-delivery repair.
