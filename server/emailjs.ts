@@ -8,6 +8,7 @@ function emailJsConfig() {
     serviceId: process.env.VITE_EMAILJS_SERVICE_ID ?? "",
     templateId: process.env.VITE_EMAILJS_TEMPLATE_ID ?? "",
     publicKey: process.env.VITE_EMAILJS_PUBLIC_KEY ?? "",
+    privateKey: process.env.EMAILJS_PRIVATE_KEY ?? "",
   };
 }
 
@@ -26,9 +27,9 @@ function templateParams(application: AdmissionsApplication) {
 }
 
 export async function sendAdmissionsEmail(application: AdmissionsApplication) {
-  const { serviceId, templateId, publicKey } = emailJsConfig();
-  if (!serviceId || !templateId || !publicKey) {
-    throw new Error("EmailJS is not configured");
+  const { serviceId, templateId, publicKey, privateKey } = emailJsConfig();
+  if (!serviceId || !templateId || !publicKey || !privateKey) {
+    throw new Error("EmailJS is not fully configured");
   }
 
   const response = await fetch(EMAILJS_ENDPOINT, {
@@ -38,6 +39,7 @@ export async function sendAdmissionsEmail(application: AdmissionsApplication) {
       service_id: serviceId,
       template_id: templateId,
       user_id: publicKey,
+      accessToken: privateKey,
       template_params: templateParams(application),
     }),
   });

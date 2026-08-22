@@ -29,6 +29,7 @@ describe("EmailJS Admissions delivery", () => {
       service_id: expect.any(String),
       template_id: expect.any(String),
       user_id: expect.any(String),
+      accessToken: expect.any(String),
       template_params: {
         learner_full_name: "Ama Mensah",
         guardian_email: "parent@example.com",

@@ -37,3 +37,8 @@
 - [x] Verify the repair without creating duplicate real applications.
 - [x] Save a repaired Admissions checkpoint.
 - [x] Save a new project checkpoint after the Admissions email-delivery repair.
+- [x] Resolve the EmailJS 403 non-browser API access error on /admissions.
+- [x] Verify EmailJS security settings or move the send back to the browser-safe SDK path.
+- [x] Retest Admissions submission handling without sending duplicate test applications.
+- [x] Save a repaired checkpoint for the 403 fix.
+- [ ] Save a new project checkpoint after the EmailJS 403/private-key fix.
