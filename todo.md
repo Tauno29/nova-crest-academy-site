@@ -26,3 +26,9 @@
 - [x] Wire the Admissions form to the submission handler with loading, success, and error states.
 - [x] Add and run Vitest coverage for the submission handler.
 - [x] Verify the completed form flow and save a checkpoint.
+- [x] Replace the Resend Admissions delivery path with EmailJS.
+- [x] Add EmailJS public configuration and required project secrets.
+- [x] Preserve the completed application payload and success/error states.
+- [x] Add and run EmailJS configuration and submission tests.
+- [x] Verify the updated Admissions flow and save a checkpoint.
+- [ ] Save a new checkpoint after the EmailJS migration so the delivered state includes the client-side submission flow.
