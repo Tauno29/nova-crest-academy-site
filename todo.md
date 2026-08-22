@@ -20,3 +20,9 @@
 - [x] Recreate the screenshot-matched Home page.
 - [x] Remove the small blue artifact from the Home page.
 - [x] Verify the Home page and save a new checkpoint.
+- [x] Resolve the full-stack upgrade merge conflict while preserving the existing Home page.
+- [x] Add a secure server-side Admissions submission handler for novacrestprivateschool@gmail.com.
+- [x] Add the email provider secret/configuration requirement without exposing credentials in the browser.
+- [x] Wire the Admissions form to the submission handler with loading, success, and error states.
+- [x] Add and run Vitest coverage for the submission handler.
+- [x] Verify the completed form flow and save a checkpoint.

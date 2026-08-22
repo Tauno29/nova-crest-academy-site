@@ -10,8 +10,8 @@ import AdmissionsPage from "./pages/AdmissionsPage";
 import HostelPage from "./pages/HostelPage";
 import GalleryPage from "./pages/GalleryPage";
 import FeesPage from "./pages/FeesPage";
-
 function Router() {
+  // make sure to consider if you need authentication for certain routes
   return (
     <Switch>
       <Route path="/" component={Home} />
