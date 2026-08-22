@@ -101,7 +101,7 @@
 
 ## Windows desktop admin replacement
 
-- [ ] Safely inspect the supplied Nova Crest Admin executable without running it.
+- [x] Safely inspect the supplied Nova Crest Admin executable without running it.
 - [ ] Confirm and bind a local Windows development folder for desktop-app output.
 - [ ] Define the desktop shell, navigation, and visual parity targets from the supplied reference.
 - [ ] Replace the web admin experience with a Windows desktop app while preserving Supabase workflows.
@@ -112,7 +112,7 @@
 ## Option A desktop shell
 
 - [x] Add a separate Windows desktop-app workspace without deleting the recoverable web admin panel.
-- [ ] Recreate the reference admin shell with a branded login, sidebar, top bar, cards, tables, and responsive desktop layout.
-- [ ] Add desktop packaging configuration and secure environment handoff for Supabase/API access.
+- [x] Recreate the reference admin shell with a branded login, sidebar, top bar, cards, tables, and responsive desktop layout.
+- [x] Add desktop packaging configuration and secure environment handoff for Supabase/API access.
 - [ ] Port the existing admin management screens into the desktop shell with authenticated backend access.
-- [ ] Validate the desktop workspace source, Electron runtime, packaging configuration, and web-app preservation.
+- [x] Validate the desktop workspace source, Electron runtime, packaging configuration, and web-app preservation.

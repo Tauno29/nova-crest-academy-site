@@ -12,7 +12,6 @@ const navLinks = [
   ["Gallery", "/gallery"],
   ["Fees", "/fees"],
   ["Parent Portal", "/parent-portal"],
-  ["Admin Panel", "/admin"],
 ] as const;
 
 function ReferenceHeader() {

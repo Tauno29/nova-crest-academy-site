@@ -30,4 +30,11 @@ describe("admin credential configuration", () => {
     await expect(verifyAdminSession(token)).resolves.toEqual({ email: configuredEmail });
     await expect(verifyAdminSession(`${token}tampered`)).resolves.toBeNull();
   });
+
+  it("supports the desktop login handoff without storing credentials", async () => {
+    const token = await createAdminSession(configuredEmail);
+    const session = await verifyAdminSession(token);
+    expect(session).toEqual({ email: configuredEmail });
+    expect(token).not.toContain(configuredPassword);
+  });
 });
