@@ -42,3 +42,8 @@
 - [x] Retest Admissions submission handling without sending duplicate test applications.
 - [x] Save a repaired checkpoint for the 403 fix.
 - [x] Save a new project checkpoint after the EmailJS 403/private-key fix.
+- [x] Diagnose the EmailJS “template ID not found” error on /admissions.
+- [x] Update the project’s EmailJS template ID to the valid saved template.
+- [x] Retest the delivery path without sending another real application.
+- [x] Save a corrected template-ID checkpoint.
+- [ ] Save a new checkpoint after the EmailJS template-ID correction.
