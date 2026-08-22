@@ -46,4 +46,4 @@
 - [x] Update the project’s EmailJS template ID to the valid saved template.
 - [x] Retest the delivery path without sending another real application.
 - [x] Save a corrected template-ID checkpoint.
-- [ ] Save a new checkpoint after the EmailJS template-ID correction.
+- [x] Save a new checkpoint after the EmailJS template-ID correction.
