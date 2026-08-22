@@ -32,3 +32,8 @@
 - [x] Add and run EmailJS configuration and submission tests.
 - [x] Verify the updated Admissions flow and save a checkpoint.
 - [x] Save a new checkpoint after the EmailJS migration so the delivered state includes the client-side submission flow.
+- [x] Diagnose why the submitted Admissions application did not arrive at novacrestprivateschool@gmail.com.
+- [x] Fix the EmailJS sender, template mapping, or delivery configuration.
+- [x] Verify the repair without creating duplicate real applications.
+- [x] Save a repaired Admissions checkpoint.
+- [ ] Save a new project checkpoint after the Admissions email-delivery repair.

@@ -1,52 +1,55 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { ADMISSIONS_RECIPIENT, sendAdmissionsEmail } from "./emailjs";
 
-vi.mock("@emailjs/browser", () => ({
-  default: {
-    send: vi.fn(),
-  },
-}));
-
-import emailjs from "@emailjs/browser";
-import {
-  ADMISSIONS_RECIPIENT,
-  admissionsTemplateParams,
-  isEmailJsConfigured,
-  sendAdmissionsApplication,
-} from "../client/src/lib/emailjs";
-
-describe("EmailJS Admissions integration", () => {
+describe("EmailJS Admissions delivery", () => {
   afterEach(() => {
-    vi.clearAllMocks();
+    vi.unstubAllGlobals();
   });
 
-  it("keeps the recipient and submitted application fields in the template payload", () => {
-    const params = admissionsTemplateParams({
-      learner_full_name: "Ama Mensah",
-      grade_applying_for: "Grade 1",
+  it("posts the completed application to EmailJS with the school recipient", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      text: async () => "OK",
     });
+    vi.stubGlobal("fetch", fetchMock);
 
-    expect(params).toMatchObject({
+    const result = await sendAdmissionsEmail({
       learner_full_name: "Ama Mensah",
-      grade_applying_for: "Grade 1",
-      to_email: ADMISSIONS_RECIPIENT,
-    });
-    expect(params.submitted_at).toEqual(expect.any(String));
-  });
-
-  it("sends the completed application through EmailJS when configured", async () => {
-    expect(isEmailJsConfigured()).toBe(true);
-    vi.mocked(emailjs.send).mockResolvedValue({ status: 200, text: "OK" } as never);
-
-    await sendAdmissionsApplication({
-      learner_full_name: "Ama Mensah",
+      guardian_email: "parent@example.com",
       declaration_agree: "Yes",
     });
 
-    expect(emailjs.send).toHaveBeenCalledTimes(1);
-    expect(emailjs.send.mock.calls[0]?.[2]).toMatchObject({
-      learner_full_name: "Ama Mensah",
-      declaration_agree: "Yes",
-      to_email: ADMISSIONS_RECIPIENT,
+    expect(result).toEqual({ recipient: ADMISSIONS_RECIPIENT });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+
+    const [, request] = fetchMock.mock.calls[0] ?? [];
+    const body = JSON.parse(String((request as RequestInit).body));
+    expect(body).toMatchObject({
+      service_id: expect.any(String),
+      template_id: expect.any(String),
+      user_id: expect.any(String),
+      template_params: {
+        learner_full_name: "Ama Mensah",
+        guardian_email: "parent@example.com",
+        email: "parent@example.com",
+        reply_to: "parent@example.com",
+        from_name: "Nova Crest Academy Admissions",
+        to_email: ADMISSIONS_RECIPIENT,
+      },
     });
+  });
+
+  it("surfaces an EmailJS rejection without hiding the delivery failure", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 400,
+      text: async () => "The template is invalid",
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(sendAdmissionsEmail({ learner_full_name: "Ama Mensah" })).rejects.toThrow(
+      "EmailJS rejected the application (400): The template is invalid",
+    );
   });
 });
