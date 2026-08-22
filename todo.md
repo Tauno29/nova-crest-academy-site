@@ -47,3 +47,12 @@
 - [x] Retest the delivery path without sending another real application.
 - [x] Save a corrected template-ID checkpoint.
 - [x] Save a new checkpoint after the EmailJS template-ID correction.
+- [x] Add the Parent Portal tab to the shared navigation.
+- [x] Recreate the screenshot-matched Parent Portal sign-in page.
+- [x] Avoid placeholder child records until the future admin portal issues real accounts.
+- [x] Verify responsive Parent Portal navigation and layout.
+- [x] Save a new Parent Portal checkpoint.
+- [x] Add functional mobile navigation to the Parent Portal page.
+- [x] Re-verify Parent Portal navigation at a mobile breakpoint.
+- [ ] Save a new checkpoint after the Parent Portal mobile-navigation fix.
+- [x] Open and exercise the Parent Portal mobile menu, confirming links are visible and dismiss correctly.
