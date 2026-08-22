@@ -98,3 +98,21 @@
 - [x] Add the Admin Panel link to the public site taskbar and mobile menu.
 - [x] Add focused Vitest and browser validation for the expanded workflows.
 - [x] Save a final completion checkpoint after all expanded requirements pass validation.
+
+## Windows desktop admin replacement
+
+- [ ] Safely inspect the supplied Nova Crest Admin executable without running it.
+- [ ] Confirm and bind a local Windows development folder for desktop-app output.
+- [ ] Define the desktop shell, navigation, and visual parity targets from the supplied reference.
+- [ ] Replace the web admin experience with a Windows desktop app while preserving Supabase workflows.
+- [ ] Rebuild admin authentication, learner/class management, parents, marks, attendance, updates, documents, and content controls in the desktop app.
+- [ ] Package and validate a Windows installer or executable without destroying the existing recoverable web checkpoint.
+- [ ] Save a desktop-app checkpoint and provide safe installation instructions.
+
+## Option A desktop shell
+
+- [x] Add a separate Windows desktop-app workspace without deleting the recoverable web admin panel.
+- [ ] Recreate the reference admin shell with a branded login, sidebar, top bar, cards, tables, and responsive desktop layout.
+- [ ] Add desktop packaging configuration and secure environment handoff for Supabase/API access.
+- [ ] Port the existing admin management screens into the desktop shell with authenticated backend access.
+- [ ] Validate the desktop workspace source, Electron runtime, packaging configuration, and web-app preservation.
