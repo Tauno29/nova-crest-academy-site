@@ -9,6 +9,7 @@ import InnerPage from "./pages/InnerPage";
 import AdmissionsPage from "./pages/AdmissionsPage";
 import HostelPage from "./pages/HostelPage";
 import GalleryPage from "./pages/GalleryPage";
+import FeesPage from "./pages/FeesPage";
 
 function Router() {
   return (
@@ -17,7 +18,7 @@ function Router() {
       <Route path="/admissions" component={AdmissionsPage} />
       <Route path="/hostel" component={HostelPage} />
       <Route path="/gallery" component={GalleryPage} />
-      <Route path="/fees"><InnerPage type="fees" /></Route>
+      <Route path="/fees" component={FeesPage} />
       <Route component={Home} />
     </Switch>
   );

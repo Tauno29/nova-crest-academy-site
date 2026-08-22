@@ -13,3 +13,7 @@
 - [x] Add category filters, asymmetric image mosaic, and tour CTA.
 - [x] Omit the small blue artifacts from the reference screenshots.
 - [x] Verify the Gallery page and save a new checkpoint.
+- [x] Recreate the screenshot-matched Fees page.
+- [x] Add payment, school-fee, hostel, uniform, and contact sections.
+- [x] Omit the small blue artifacts from the reference screenshots.
+- [x] Verify the Fees page and save a new checkpoint.
