@@ -27,6 +27,13 @@ const requireUser = t.middleware(async opts => {
 
 export const protectedProcedure = t.procedure.use(requireUser);
 
+export const parentProcedure = t.procedure.use(
+  t.middleware(async opts => {
+    if (!opts.ctx.parentAccountId) throw new TRPCError({ code: "UNAUTHORIZED", message: "Parent portal sign-in required." });
+    return opts.next({ ctx: { ...opts.ctx, parentAccountId: opts.ctx.parentAccountId } });
+  }),
+);
+
 export const adminProcedure = t.procedure.use(
   t.middleware(async opts => {
     const { ctx, next } = opts;

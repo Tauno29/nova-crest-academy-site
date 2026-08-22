@@ -62,7 +62,7 @@
 - [x] Build the admin management workspace and navigation.
 - [x] Add parent-account generation and learner/class management foundations.
 - [ ] Add secure class-list document upload and import foundations.
-- [ ] Add performance marks with automatic totals and parent-facing summaries.
+- [x] Add performance marks with automatic totals and parent-facing summaries.
 - [ ] Add editable site content and urgent parent-update foundations.
 - [ ] Add Vitest coverage and verify permissions, calculations, and responsive UX.
 - [x] Reconcile the Drizzle migration with the existing auth/users table and applied database state.
@@ -72,3 +72,6 @@
 - [x] Rework the Drizzle migration so foreign-key creation is safely versioned and not dependent on manual patch SQL.
 - [x] Verify the current database foreign keys and constraints, not only table existence.
 - [ ] Test the migration from a fresh database state and record the result.
+- [x] Add a real classes table and learner-to-class assignment.
+- [x] Add a parent-account-to-learner linking table for multiple children.
+- [x] Harden parent-account generation with collision-safe retries.

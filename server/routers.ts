@@ -1,18 +1,16 @@
 import { TRPCError } from "@trpc/server";
-import { desc } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { z } from "zod";
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
-import { adminProcedure, publicProcedure, router } from "./_core/trpc";
+import { adminProcedure, parentProcedure, publicProcedure, router } from "./_core/trpc";
 import { ADMISSIONS_RECIPIENT, sendAdmissionsEmail } from "./emailjs";
-import { ADMIN_SESSION_COOKIE, createAdminSession, generateParentAccessCode, getAdminCookieOptions, hashParentAccessCode, validateAdminCredentials } from "./adminAuth";
+import { ADMIN_SESSION_COOKIE, createAdminSession, generateParentAccessCode, generateParentUsername, getAdminCookieOptions, hashParentAccessCode, validateAdminCredentials } from "./adminAuth";
+import { PARENT_SESSION_COOKIE, createParentSession, getParentCookieOptions } from "./parentAuth";
 import { getDb } from "./db";
-import { documents, learners, parentAccounts, siteContent, urgentUpdates } from "../drizzle/schema";
-
-function randomUsernameSuffix() {
-  return Math.random().toString(36).slice(2, 8);
-}
+import { storagePut } from "./storage";
+import { classes, documents, learners, parentAccountLearners, parentAccounts, performanceEntries, siteContent, urgentUpdates } from "../drizzle/schema";
 
 const contentInput = z.object({
   contentKey: z.string().min(1).max(100),
@@ -30,6 +28,28 @@ export const appRouter = router({
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
       ctx.res.clearCookie(ADMIN_SESSION_COOKIE, { ...getAdminCookieOptions(ctx.req), maxAge: -1 });
       return { success: true } as const;
+    }),
+  }),
+  parent: router({
+    login: publicProcedure.input(z.object({ username: z.string().min(1), accessCode: z.string().min(1) })).mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." });
+      const accounts = await db.select().from(parentAccounts).where(eq(parentAccounts.username, input.username.trim())).limit(1);
+      const account = accounts[0];
+      if (!account || !account.active || hashParentAccessCode(input.accessCode) !== account.accessCodeHash) throw new TRPCError({ code: "UNAUTHORIZED", message: "The username or access code is incorrect." });
+      ctx.res.cookie(PARENT_SESSION_COOKIE, await createParentSession(account.id), getParentCookieOptions(ctx.req));
+      return { success: true, parentName: account.parentName } as const;
+    }),
+    logout: publicProcedure.mutation(({ ctx }) => { ctx.res.clearCookie(PARENT_SESSION_COOKIE, { ...getParentCookieOptions(ctx.req), maxAge: -1 }); return { success: true } as const; }),
+    portal: parentProcedure.query(async ({ ctx }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." });
+      const links = await db.select({ learnerId: parentAccountLearners.learnerId }).from(parentAccountLearners).where(eq(parentAccountLearners.parentAccountId, ctx.parentAccountId));
+      const ids = links.map(link => link.learnerId);
+      if (!ids.length) return { children: [], performance: [] };
+      const children = await db.select().from(learners).where(eq(learners.id, ids[0]!));
+      const performance = await db.select().from(performanceEntries).where(eq(performanceEntries.learnerId, ids[0]!)).orderBy(desc(performanceEntries.performedAt));
+      return { children, performance };
     }),
   }),
   admissions: router({
@@ -68,13 +88,26 @@ export const appRouter = router({
       ]);
       return { learners: learnerRows.length, parentAccounts: parentRows.length, contentSections: contentRows.length, urgentUpdates: updateRows.length, documents: documentRows.length };
     }),
+    classes: router({
+      list: adminProcedure.query(async () => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." });
+        return db.select().from(classes).orderBy(classes.name);
+      }),
+      create: adminProcedure.input(z.object({ name: z.string().min(1).max(80) })).mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." });
+        await db.insert(classes).values(input);
+        return { success: true } as const;
+      }),
+    }),
     learners: router({
       list: adminProcedure.query(async () => {
         const db = await getDb();
         if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." });
         return db.select().from(learners).orderBy(learners.className, learners.surname, learners.fullName);
       }),
-      create: adminProcedure.input(z.object({ fullName: z.string().min(2).max(160), surname: z.string().min(2).max(120), className: z.string().min(1).max(80) })).mutation(async ({ input }) => {
+      create: adminProcedure.input(z.object({ fullName: z.string().min(2).max(160), surname: z.string().min(2).max(120), className: z.string().min(1).max(80), classId: z.number().int().positive().optional() })).mutation(async ({ input }) => {
         const db = await getDb();
         if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." });
         await db.insert(learners).values(input);
@@ -87,13 +120,68 @@ export const appRouter = router({
         if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." });
         return db.select({ id: parentAccounts.id, username: parentAccounts.username, parentName: parentAccounts.parentName, parentEmail: parentAccounts.parentEmail, active: parentAccounts.active, createdAt: parentAccounts.createdAt }).from(parentAccounts).orderBy(desc(parentAccounts.createdAt));
       }),
-      create: adminProcedure.input(z.object({ parentName: z.string().min(2).max(160), parentEmail: z.string().email().optional() })).mutation(async ({ input }) => {
+      create: adminProcedure.input(z.object({ parentName: z.string().min(2).max(160), parentEmail: z.string().email().optional(), learnerIds: z.array(z.number().int().positive()).default([]) })).mutation(async ({ input }) => {
         const db = await getDb();
         if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." });
         const accessCode = generateParentAccessCode();
-        const username = `parent-${randomUsernameSuffix()}`;
-        await db.insert(parentAccounts).values({ username, accessCodeHash: hashParentAccessCode(accessCode), parentName: input.parentName, parentEmail: input.parentEmail ?? null });
-        return { success: true, username, accessCode } as const;
+        let username = generateParentUsername();
+        for (let attempt = 0; attempt < 3; attempt += 1) {
+          try {
+            await db.transaction(async tx => {
+              const inserted = await tx.insert(parentAccounts).values({ username, accessCodeHash: hashParentAccessCode(accessCode), parentName: input.parentName, parentEmail: input.parentEmail ?? null });
+              const parentId = Number(inserted[0].insertId);
+              if (input.learnerIds.length) await tx.insert(parentAccountLearners).values(input.learnerIds.map(learnerId => ({ parentAccountId: parentId, learnerId })));
+            });
+            return { success: true, username, accessCode } as const;
+          } catch (error) {
+            const isDuplicateUsername = Boolean(error && typeof error === "object" && "code" in error && error.code === "ER_DUP_ENTRY");
+            if (!isDuplicateUsername || attempt === 2) throw error;
+            username = generateParentUsername();
+          }
+        }
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Unable to create a unique parent account." });
+      }),
+    }),
+    documents: router({
+      upload: adminProcedure.input(z.object({ filename: z.string().min(1).max(255), mimeType: z.string().min(1).max(120), dataBase64: z.string().min(1) })).mutation(async ({ input, ctx }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." });
+        const buffer = Buffer.from(input.dataBase64, "base64");
+        if (buffer.length > 15 * 1024 * 1024) throw new TRPCError({ code: "PAYLOAD_TOO_LARGE", message: "Class-list files must be 15 MB or smaller." });
+        const stored = await storagePut(`class-lists/${Date.now()}-${input.filename.replace(/[^a-zA-Z0-9._-]/g, "-")}`, buffer, input.mimeType);
+        await db.insert(documents).values({ filename: input.filename, mimeType: input.mimeType, storageKey: stored.key, storageUrl: stored.url, uploadedBy: ctx.user.email ?? "administrator" });
+        return { success: true, url: stored.url } as const;
+      }),
+      list: adminProcedure.query(async () => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." });
+        return db.select().from(documents).orderBy(desc(documents.createdAt));
+      }),
+    }),
+    updates: router({
+      list: adminProcedure.query(async () => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." });
+        return db.select().from(urgentUpdates).orderBy(desc(urgentUpdates.createdAt));
+      }),
+      create: adminProcedure.input(z.object({ title: z.string().min(1).max(180), body: z.string().min(1), isPublished: z.boolean().default(false) })).mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." });
+        await db.insert(urgentUpdates).values({ title: input.title, body: input.body, isPublished: input.isPublished ? 1 : 0 });
+        return { success: true } as const;
+      }),
+    }),
+    performance: router({
+      list: adminProcedure.input(z.object({ learnerId: z.number().int().positive().optional() }).default({})).query(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." });
+        return input.learnerId ? db.select().from(performanceEntries).where(eq(performanceEntries.learnerId, input.learnerId)).orderBy(desc(performanceEntries.performedAt)) : db.select().from(performanceEntries).orderBy(desc(performanceEntries.performedAt));
+      }),
+      create: adminProcedure.input(z.object({ learnerId: z.number().int().positive(), activityName: z.string().min(1).max(160), activityType: z.string().min(1).max(60), marks: z.number().int().min(0), totalMarks: z.number().int().positive() }).refine(value => value.marks <= value.totalMarks, { message: "Marks cannot exceed the total marks." })).mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." });
+        await db.insert(performanceEntries).values(input);
+        return { success: true, percentage: Math.round((input.marks / input.totalMarks) * 100) } as const;
       }),
     }),
     content: router({

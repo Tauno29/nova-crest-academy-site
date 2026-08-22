@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { int, mysqlEnum, mysqlTable, primaryKey, text, timestamp, varchar } from "drizzle-orm/mysql-core";
 
 export const users = mysqlTable("users", {
   id: int("id").autoincrement().primaryKey(),
@@ -23,15 +23,30 @@ export const parentAccounts = mysqlTable("parent_accounts", {
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
+export const classes = mysqlTable("classes", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 80 }).notNull().unique(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
 export const learners = mysqlTable("learners", {
   id: int("id").autoincrement().primaryKey(),
   fullName: varchar("fullName", { length: 160 }).notNull(),
   surname: varchar("surname", { length: 120 }).notNull(),
   className: varchar("className", { length: 80 }).notNull(),
+  classId: int("classId").references(() => classes.id, { onDelete: "set null" }),
   parentAccountId: int("parentAccountId").references(() => parentAccounts.id, { onDelete: "set null" }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
+
+export const parentAccountLearners = mysqlTable("parent_account_learners", {
+  parentAccountId: int("parentAccountId").notNull().references(() => parentAccounts.id, { onDelete: "cascade" }),
+  learnerId: int("learnerId").notNull().references(() => learners.id, { onDelete: "cascade" }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, table => ({
+  pk: primaryKey({ columns: [table.parentAccountId, table.learnerId] }),
+}));
 
 export const performanceEntries = mysqlTable("performance_entries", {
   id: int("id").autoincrement().primaryKey(),
@@ -75,6 +90,7 @@ export const urgentUpdates = mysqlTable("urgent_updates", {
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 export type ParentAccount = typeof parentAccounts.$inferSelect;
+export type Class = typeof classes.$inferSelect;
 export type Learner = typeof learners.$inferSelect;
 export type PerformanceEntry = typeof performanceEntries.$inferSelect;
 export type SiteContent = typeof siteContent.$inferSelect;

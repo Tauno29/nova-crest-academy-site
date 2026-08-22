@@ -1,4 +1,5 @@
 import { FormEvent, useState } from "react";
+import { trpc } from "@/lib/trpc";
 import { ArrowRight, Eye, EyeOff, LockKeyhole, Menu, X } from "lucide-react";
 import { Link } from "wouter";
 
@@ -58,10 +59,14 @@ function ReferenceHeader() {
 export default function ParentPortalPage() {
   const [showCode, setShowCode] = useState(false);
   const [notice, setNotice] = useState("");
+  const [signedIn, setSignedIn] = useState(false);
+  const portal = trpc.parent.portal.useQuery(undefined, { enabled: signedIn });
+  const login = trpc.parent.login.useMutation({ onSuccess: async result => { setSignedIn(true); setNotice(`Welcome, ${result.parentName}.`); }, onError: error => setNotice(error.message) });
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setNotice("Portal access is issued by Nova Crest Academy administration. Please use the username and access code provided by the school.");
+    const form = new FormData(event.currentTarget);
+    login.mutate({ username: String(form.get("username") ?? ""), accessCode: String(form.get("access_code") ?? "") });
   };
 
   return (
@@ -101,12 +106,13 @@ export default function ParentPortalPage() {
                     <button type="button" onClick={() => setShowCode((current) => !current)} aria-label={showCode ? "Hide access code" : "Show access code"} className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-2 text-[#8c8580] hover:bg-[#fff1e9] hover:text-[#d8734b]">{showCode ? <EyeOff size={17} /> : <Eye size={17} />}</button>
                   </span>
                 </label>
-                <button type="submit" className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-[#ef986b] text-sm font-bold text-white shadow-[0_8px_16px_rgba(239,152,107,.18)] transition hover:bg-[#e48759] active:scale-[.98]">Open my portal <ArrowRight size={17} /></button>
+                <button type="submit" disabled={login.isPending} className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-[#ef986b] text-sm font-bold text-white shadow-[0_8px_16px_rgba(239,152,107,.18)] transition hover:bg-[#e48759] active:scale-[.98]">{login.isPending ? "Checking access…" : "Open my portal"} <ArrowRight size={17} /></button>
               </form>
 
               {notice && <p role="status" className="mt-5 rounded-xl border border-[#f3d8ca] bg-[#fff7f2] px-4 py-3 text-sm leading-6 text-[#8f5439]">{notice}</p>}
 
               <p className="mt-7 text-xs leading-5 text-[#919096]">Accounts are issued by Nova Crest Academy. No placeholder records are shown.</p>
+              {signedIn && portal.data && <div className="mt-6 rounded-2xl bg-[#f8f4ee] p-5 text-left"><p className="text-xs font-bold uppercase tracking-wider text-[#b65347]">Linked learner performance</p>{portal.data.children.length ? portal.data.children.map(child => <div key={child.id} className="mt-3"><p className="font-semibold text-[#172338]">{child.fullName} {child.surname}</p><p className="text-xs text-[#776f6b]">{child.className}</p></div>) : <p className="mt-3 text-sm text-[#776f6b]">Your account is active. Learner records will appear once linked by the school.</p>}{portal.data.performance.length ? <div className="mt-4 space-y-2">{portal.data.performance.map(entry => <div key={entry.id} className="flex justify-between text-sm"><span>{entry.activityName}</span><strong>{entry.marks}/{entry.totalMarks} ({Math.round(entry.marks / entry.totalMarks * 100)}%)</strong></div>)}</div> : null}</div>}
             </div>
 
             <div className="mt-9 grid gap-3 text-center text-sm text-[#776f6b] sm:grid-cols-3">

@@ -46,6 +46,10 @@ export function getAdminCookieOptions(req: Request) {
   return { ...getSessionCookieOptions(req), maxAge: 8 * 60 * 60 * 1000 } as const;
 }
 
+export function generateParentUsername() {
+  return `parent-${randomBytes(6).toString("hex")}`;
+}
+
 export function generateParentAccessCode() {
   return randomBytes(5).toString("hex").toUpperCase();
 }

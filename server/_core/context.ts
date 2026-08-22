@@ -1,6 +1,7 @@
 import type { CreateExpressContextOptions } from "@trpc/server/adapters/express";
 import type { User } from "../../drizzle/schema";
 import { getAdminToken, verifyAdminSession } from "../adminAuth";
+import { getParentToken, verifyParentSession } from "../parentAuth";
 import { sdk } from "./sdk";
 
 function adminUser(email: string): User {
@@ -22,18 +23,26 @@ export type TrpcContext = {
   req: CreateExpressContextOptions["req"];
   res: CreateExpressContextOptions["res"];
   user: User | null;
+  parentAccountId: number | null;
 };
 
 export async function createContext(
   opts: CreateExpressContextOptions
 ): Promise<TrpcContext> {
   let user: User | null = null;
+  let parentAccountId: number | null = null;
 
   try {
     user = await sdk.authenticateRequest(opts.req);
   } catch {
     // Authentication is optional for public procedures.
     user = null;
+  }
+
+  const parentToken = getParentToken(opts.req);
+  if (parentToken) {
+    const session = await verifyParentSession(parentToken);
+    if (session) parentAccountId = session.accountId;
   }
 
   if (!user) {
@@ -48,5 +57,6 @@ export async function createContext(
     req: opts.req,
     res: opts.res,
     user,
+    parentAccountId,
   };
 }
