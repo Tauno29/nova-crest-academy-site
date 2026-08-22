@@ -9,3 +9,7 @@
 - [x] Recreate the screenshot-matched Hostel page.
 - [x] Omit the small blue artifacts from the reference screenshots.
 - [x] Verify the Hostel page and save a new checkpoint.
+- [x] Recreate the screenshot-matched Gallery page.
+- [x] Add category filters, asymmetric image mosaic, and tour CTA.
+- [x] Omit the small blue artifacts from the reference screenshots.
+- [x] Verify the Gallery page and save a new checkpoint.

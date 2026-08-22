@@ -8,6 +8,7 @@ import Home from "./pages/Home";
 import InnerPage from "./pages/InnerPage";
 import AdmissionsPage from "./pages/AdmissionsPage";
 import HostelPage from "./pages/HostelPage";
+import GalleryPage from "./pages/GalleryPage";
 
 function Router() {
   return (
@@ -15,7 +16,7 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/admissions" component={AdmissionsPage} />
       <Route path="/hostel" component={HostelPage} />
-      <Route path="/gallery"><InnerPage type="gallery" /></Route>
+      <Route path="/gallery" component={GalleryPage} />
       <Route path="/fees"><InnerPage type="fees" /></Route>
       <Route component={Home} />
     </Switch>
