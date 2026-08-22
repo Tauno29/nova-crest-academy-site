@@ -87,6 +87,8 @@ export const documents = pgTable("documents", {
   storageUrl: text("storageUrl").notNull(),
   mimeType: varchar("mimeType", { length: 120 }).notNull(),
   uploadedBy: varchar("uploadedBy", { length: 320 }).notNull(),
+  importStatus: varchar("importStatus", { length: 30 }).default("uploaded").notNull(),
+  importedRows: integer("importedRows").default(0).notNull(),
   createdAt: timestamp("createdAt", { withTimezone: true }).defaultNow().notNull(),
 });
 

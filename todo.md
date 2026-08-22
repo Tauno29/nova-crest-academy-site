@@ -97,4 +97,4 @@
 - [x] Add urgent-update editing, expiry, read/unread state, and parent visibility.
 - [x] Add the Admin Panel link to the public site taskbar and mobile menu.
 - [x] Add focused Vitest and browser validation for the expanded workflows.
-- [ ] Save a final completion checkpoint after all expanded requirements pass validation.
+- [x] Save a final completion checkpoint after all expanded requirements pass validation.

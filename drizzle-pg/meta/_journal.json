@@ -15,6 +15,13 @@
       "when": 1787433780980,
       "tag": "0001_square_kulan_gath",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1787435005539,
+      "tag": "0002_exotic_famine",
+      "breakpoints": true
     }
   ]
 }

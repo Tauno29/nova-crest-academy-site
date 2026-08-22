@@ -201,14 +201,15 @@ export const appRouter = router({
         if (!rows.length) throw new TRPCError({ code: "BAD_REQUEST", message: "No valid class-list rows were found. Use columns: full name, surname, class, activity, type, marks, total marks." });
         await db.transaction(async tx => {
           const stored = await storagePut(`class-lists/${Date.now()}-${input.filename.replace(/[^a-zA-Z0-9._-]/g, "-")}`, buffer, input.mimeType);
-          await tx.insert(documents).values({ filename: input.filename, mimeType: input.mimeType, storageKey: stored.key, storageUrl: stored.url, uploadedBy: ctx.user.email ?? "administrator" });
+          const insertedDocument = await tx.insert(documents).values({ filename: input.filename, mimeType: input.mimeType, storageKey: stored.key, storageUrl: stored.url, uploadedBy: ctx.user.email ?? "administrator", importStatus: "importing", importedRows: 0 }).returning({ id: documents.id });
           for (const row of rows) {
             await tx.insert(classes).values({ name: row.className }).onConflictDoNothing();
             const classRows = await tx.select().from(classes).where(eq(classes.name, row.className)).limit(1);
-            const inserted = await tx.insert(learners).values({ fullName: row.fullName, surname: row.surname, className: row.className, classId: classRows[0]?.id }).returning({ id: learners.id });
-            const learnerId = inserted[0]?.id;
+            const existingLearner = await tx.select({ id: learners.id }).from(learners).where(and(eq(learners.fullName, row.fullName), eq(learners.surname, row.surname), eq(learners.className, row.className))).limit(1);
+            const learnerId = existingLearner[0]?.id ?? (await tx.insert(learners).values({ fullName: row.fullName, surname: row.surname, className: row.className, classId: classRows[0]?.id }).returning({ id: learners.id }))[0]?.id;
             if (learnerId && row.activityName && row.marks !== undefined && row.totalMarks !== undefined) await tx.insert(performanceEntries).values({ learnerId, activityName: row.activityName, activityType: row.activityType || "Imported", marks: row.marks, totalMarks: row.totalMarks });
           }
+          if (insertedDocument[0]?.id) await tx.update(documents).set({ importStatus: "imported", importedRows: rows.length }).where(eq(documents.id, insertedDocument[0].id));
         });
         return { success: true, importedRows: rows.length } as const;
       }),
