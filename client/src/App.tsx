@@ -7,13 +7,14 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import InnerPage from "./pages/InnerPage";
 import AdmissionsPage from "./pages/AdmissionsPage";
+import HostelPage from "./pages/HostelPage";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/admissions" component={AdmissionsPage} />
-      <Route path="/hostel"><InnerPage type="hostel" /></Route>
+      <Route path="/hostel" component={HostelPage} />
       <Route path="/gallery"><InnerPage type="gallery" /></Route>
       <Route path="/fees"><InnerPage type="fees" /></Route>
       <Route component={Home} />
