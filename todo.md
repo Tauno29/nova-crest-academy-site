@@ -17,3 +17,6 @@
 - [x] Add payment, school-fee, hostel, uniform, and contact sections.
 - [x] Omit the small blue artifacts from the reference screenshots.
 - [x] Verify the Fees page and save a new checkpoint.
+- [x] Recreate the screenshot-matched Home page.
+- [x] Remove the small blue artifact from the Home page.
+- [x] Verify the Home page and save a new checkpoint.
