@@ -6,12 +6,13 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import InnerPage from "./pages/InnerPage";
+import AdmissionsPage from "./pages/AdmissionsPage";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
-      <Route path="/admissions"><InnerPage type="admissions" /></Route>
+      <Route path="/admissions" component={AdmissionsPage} />
       <Route path="/hostel"><InnerPage type="hostel" /></Route>
       <Route path="/gallery"><InnerPage type="gallery" /></Route>
       <Route path="/fees"><InnerPage type="fees" /></Route>
