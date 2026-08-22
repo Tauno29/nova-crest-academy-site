@@ -56,3 +56,19 @@
 - [x] Re-verify Parent Portal navigation at a mobile breakpoint.
 - [x] Save a new checkpoint after the Parent Portal mobile-navigation fix.
 - [x] Open and exercise the Parent Portal mobile menu, confirming links are visible and dismiss correctly.
+- [x] Define admin portal scope and domain model for accounts, learners, marks, content, documents, and urgent updates.
+- [x] Add admin-only database tables and migrations with safe relationships.
+- [x] Add admin authentication and protected admin procedures.
+- [x] Build the admin management workspace and navigation.
+- [x] Add parent-account generation and learner/class management foundations.
+- [ ] Add secure class-list document upload and import foundations.
+- [ ] Add performance marks with automatic totals and parent-facing summaries.
+- [ ] Add editable site content and urgent parent-update foundations.
+- [ ] Add Vitest coverage and verify permissions, calculations, and responsive UX.
+- [x] Reconcile the Drizzle migration with the existing auth/users table and applied database state.
+- [ ] Verify the admin schema migration from both current and fresh database assumptions.
+- [ ] Save the first admin portal milestone checkpoint.
+- [x] Replace DashboardLayout placeholder sidebar items with real admin navigation for /admin sections.
+- [x] Rework the Drizzle migration so foreign-key creation is safely versioned and not dependent on manual patch SQL.
+- [x] Verify the current database foreign keys and constraints, not only table existence.
+- [ ] Test the migration from a fresh database state and record the result.
