@@ -28,6 +28,7 @@ function Router() {
       <Route path="/admin/parents" component={AdminPortalPage} />
       <Route path="/admin/marks" component={AdminPortalPage} />
       <Route path="/admin/updates" component={AdminPortalPage} />
+      <Route path="/admin/documents" component={AdminPortalPage} />
       <Route component={Home} />
     </Switch>
   );

@@ -61,9 +61,9 @@
 - [x] Add admin authentication and protected admin procedures.
 - [x] Build the admin management workspace and navigation.
 - [x] Add parent-account generation and learner/class management foundations.
-- [ ] Add secure class-list document upload and import foundations.
+- [x] Add secure class-list document upload and import foundations.
 - [x] Add performance marks with automatic totals and parent-facing summaries.
-- [ ] Add editable site content and urgent parent-update foundations.
+- [x] Add editable site content and urgent parent-update foundations.
 - [ ] Add Vitest coverage and verify permissions, calculations, and responsive UX.
 - [x] Reconcile the Drizzle migration with the existing auth/users table and applied database state.
 - [ ] Verify the admin schema migration from both current and fresh database assumptions.

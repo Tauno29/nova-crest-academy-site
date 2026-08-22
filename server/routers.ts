@@ -46,10 +46,11 @@ export const appRouter = router({
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." });
       const links = await db.select({ learnerId: parentAccountLearners.learnerId }).from(parentAccountLearners).where(eq(parentAccountLearners.parentAccountId, ctx.parentAccountId));
       const ids = links.map(link => link.learnerId);
-      if (!ids.length) return { children: [], performance: [] };
+      if (!ids.length) return { children: [], performance: [], updates: [] };
       const children = await db.select().from(learners).where(eq(learners.id, ids[0]!));
       const performance = await db.select().from(performanceEntries).where(eq(performanceEntries.learnerId, ids[0]!)).orderBy(desc(performanceEntries.performedAt));
-      return { children, performance };
+      const updates = await db.select().from(urgentUpdates).where(eq(urgentUpdates.isPublished, 1)).orderBy(desc(urgentUpdates.createdAt));
+      return { children, performance, updates };
     }),
   }),
   admissions: router({

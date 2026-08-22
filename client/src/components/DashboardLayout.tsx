@@ -34,6 +34,7 @@ const menuItems = [
   { icon: KeyRound, label: "Parent accounts", path: "/admin/parents" },
   { icon: BookOpen, label: "Performance", path: "/admin/marks" },
   { icon: Megaphone, label: "Urgent updates", path: "/admin/updates" },
+  { icon: FileText, label: "Class-list files", path: "/admin/documents" },
 ];
 
 const SIDEBAR_WIDTH_KEY = "sidebar-width";
