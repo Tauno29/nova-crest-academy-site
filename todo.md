@@ -54,5 +54,5 @@
 - [x] Save a new Parent Portal checkpoint.
 - [x] Add functional mobile navigation to the Parent Portal page.
 - [x] Re-verify Parent Portal navigation at a mobile breakpoint.
-- [ ] Save a new checkpoint after the Parent Portal mobile-navigation fix.
+- [x] Save a new checkpoint after the Parent Portal mobile-navigation fix.
 - [x] Open and exercise the Parent Portal mobile menu, confirming links are visible and dismiss correctly.
