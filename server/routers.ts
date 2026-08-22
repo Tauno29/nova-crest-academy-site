@@ -129,13 +129,14 @@ export const appRouter = router({
         for (let attempt = 0; attempt < 3; attempt += 1) {
           try {
             await db.transaction(async tx => {
-              const inserted = await tx.insert(parentAccounts).values({ username, accessCodeHash: hashParentAccessCode(accessCode), parentName: input.parentName, parentEmail: input.parentEmail ?? null });
-              const parentId = Number(inserted[0].insertId);
+              const inserted = await tx.insert(parentAccounts).values({ username, accessCodeHash: hashParentAccessCode(accessCode), parentName: input.parentName, parentEmail: input.parentEmail ?? null }).returning({ id: parentAccounts.id });
+              const parentId = inserted[0]?.id;
+              if (!parentId) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Unable to create the parent account." });
               if (input.learnerIds.length) await tx.insert(parentAccountLearners).values(input.learnerIds.map(learnerId => ({ parentAccountId: parentId, learnerId })));
             });
             return { success: true, username, accessCode } as const;
           } catch (error) {
-            const isDuplicateUsername = Boolean(error && typeof error === "object" && "code" in error && error.code === "ER_DUP_ENTRY");
+            const isDuplicateUsername = Boolean(error && typeof error === "object" && "code" in error && error.code === "23505");
             if (!isDuplicateUsername || attempt === 2) throw error;
             username = generateParentUsername();
           }
@@ -194,7 +195,7 @@ export const appRouter = router({
       save: adminProcedure.input(contentInput).mutation(async ({ input }) => {
         const db = await getDb();
         if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." });
-        await db.insert(siteContent).values({ ...input, imageUrl: input.imageUrl || null }).onDuplicateKeyUpdate({ set: { title: input.title, body: input.body, imageUrl: input.imageUrl || null } });
+        await db.insert(siteContent).values({ ...input, imageUrl: input.imageUrl || null }).onConflictDoUpdate({ target: siteContent.contentKey, set: { title: input.title, body: input.body, imageUrl: input.imageUrl || null, updatedAt: new Date() } });
         return { success: true } as const;
       }),
     }),
