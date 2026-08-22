@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq, gt, inArray, isNull, or } from "drizzle-orm";
 import { z } from "zod";
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
@@ -9,8 +9,9 @@ import { ADMISSIONS_RECIPIENT, sendAdmissionsEmail } from "./emailjs";
 import { ADMIN_SESSION_COOKIE, createAdminSession, generateParentAccessCode, generateParentUsername, getAdminCookieOptions, hashParentAccessCode, validateAdminCredentials } from "./adminAuth";
 import { PARENT_SESSION_COOKIE, createParentSession, getParentCookieOptions } from "./parentAuth";
 import { getDb } from "./db";
+import { extractClassListRows } from "./classListImport";
 import { storagePut } from "./storage";
-import { classes, documents, learners, parentAccountLearners, parentAccounts, performanceEntries, siteContent, urgentUpdates } from "../drizzle/schema";
+import { attendanceRecords, classes, documents, learners, parentAccountLearners, parentAccounts, performanceEntries, siteContent, urgentUpdateReads, urgentUpdates } from "../drizzle/schema";
 
 const contentInput = z.object({
   contentKey: z.string().min(1).max(100),
@@ -46,11 +47,35 @@ export const appRouter = router({
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." });
       const links = await db.select({ learnerId: parentAccountLearners.learnerId }).from(parentAccountLearners).where(eq(parentAccountLearners.parentAccountId, ctx.parentAccountId));
       const ids = links.map(link => link.learnerId);
-      if (!ids.length) return { children: [], performance: [], updates: [] };
-      const children = await db.select().from(learners).where(eq(learners.id, ids[0]!));
-      const performance = await db.select().from(performanceEntries).where(eq(performanceEntries.learnerId, ids[0]!)).orderBy(desc(performanceEntries.performedAt));
-      const updates = await db.select().from(urgentUpdates).where(eq(urgentUpdates.isPublished, 1)).orderBy(desc(urgentUpdates.createdAt));
-      return { children, performance, updates };
+      if (!ids.length) {
+        const [updates, reads] = await Promise.all([
+          db.select().from(urgentUpdates).where(and(eq(urgentUpdates.isPublished, 1), or(isNull(urgentUpdates.expiresAt), gt(urgentUpdates.expiresAt, new Date())))).orderBy(desc(urgentUpdates.createdAt)),
+          db.select().from(urgentUpdateReads).where(eq(urgentUpdateReads.parentAccountId, ctx.parentAccountId)),
+        ]);
+        return { children: [], performance: [], attendance: [], updates, readIds: reads.map(read => read.updateId) };
+      }
+      const [children, performance, attendance, updates, reads] = await Promise.all([
+        db.select().from(learners).where(inArray(learners.id, ids)),
+        db.select().from(performanceEntries).where(inArray(performanceEntries.learnerId, ids)).orderBy(desc(performanceEntries.performedAt)),
+        db.select().from(attendanceRecords).where(inArray(attendanceRecords.learnerId, ids)).orderBy(desc(attendanceRecords.attendanceDate)),
+        db.select().from(urgentUpdates).where(and(eq(urgentUpdates.isPublished, 1), or(isNull(urgentUpdates.expiresAt), gt(urgentUpdates.expiresAt, new Date())))).orderBy(desc(urgentUpdates.createdAt)),
+        db.select().from(urgentUpdateReads).where(eq(urgentUpdateReads.parentAccountId, ctx.parentAccountId)),
+      ]);
+      return { children, performance, attendance, updates, readIds: reads.map(read => read.updateId) };
+    }),
+    markUpdateRead: parentProcedure.input(z.object({ updateId: z.number().int().positive() })).mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." });
+      await db.insert(urgentUpdateReads).values({ parentAccountId: ctx.parentAccountId, updateId: input.updateId }).onConflictDoUpdate({ target: [urgentUpdateReads.parentAccountId, urgentUpdateReads.updateId], set: { readAt: new Date() } });
+      return { success: true } as const;
+    }),
+  }),
+  content: router({
+    get: publicProcedure.input(z.object({ contentKey: z.string().min(1).max(100) })).query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." });
+      const rows = await db.select().from(siteContent).where(eq(siteContent.contentKey, input.contentKey)).limit(1);
+      return rows[0] ?? null;
     }),
   }),
   admissions: router({
@@ -121,6 +146,19 @@ export const appRouter = router({
         if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." });
         return db.select({ id: parentAccounts.id, username: parentAccounts.username, parentName: parentAccounts.parentName, parentEmail: parentAccounts.parentEmail, active: parentAccounts.active, createdAt: parentAccounts.createdAt }).from(parentAccounts).orderBy(desc(parentAccounts.createdAt));
       }),
+      resetCode: adminProcedure.input(z.object({ id: z.number().int().positive() })).mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." });
+        const accessCode = generateParentAccessCode();
+        await db.update(parentAccounts).set({ accessCodeHash: hashParentAccessCode(accessCode), updatedAt: new Date(), active: 1 }).where(eq(parentAccounts.id, input.id));
+        return { success: true, accessCode } as const;
+      }),
+      setActive: adminProcedure.input(z.object({ id: z.number().int().positive(), active: z.boolean() })).mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." });
+        await db.update(parentAccounts).set({ active: input.active ? 1 : 0, updatedAt: new Date() }).where(eq(parentAccounts.id, input.id));
+        return { success: true } as const;
+      }),
       create: adminProcedure.input(z.object({ parentName: z.string().min(2).max(160), parentEmail: z.string().email().optional(), learnerIds: z.array(z.number().int().positive()).default([]) })).mutation(async ({ input }) => {
         const db = await getDb();
         if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." });
@@ -154,10 +192,43 @@ export const appRouter = router({
         await db.insert(documents).values({ filename: input.filename, mimeType: input.mimeType, storageKey: stored.key, storageUrl: stored.url, uploadedBy: ctx.user.email ?? "administrator" });
         return { success: true, url: stored.url } as const;
       }),
+      import: adminProcedure.input(z.object({ filename: z.string().min(1).max(255), mimeType: z.string().min(1).max(120), dataBase64: z.string().min(1) })).mutation(async ({ input, ctx }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." });
+        const buffer = Buffer.from(input.dataBase64, "base64");
+        if (buffer.length > 15 * 1024 * 1024) throw new TRPCError({ code: "PAYLOAD_TOO_LARGE", message: "Class-list files must be 15 MB or smaller." });
+        const rows = await extractClassListRows(buffer, input.mimeType, input.filename);
+        if (!rows.length) throw new TRPCError({ code: "BAD_REQUEST", message: "No valid class-list rows were found. Use columns: full name, surname, class, activity, type, marks, total marks." });
+        await db.transaction(async tx => {
+          const stored = await storagePut(`class-lists/${Date.now()}-${input.filename.replace(/[^a-zA-Z0-9._-]/g, "-")}`, buffer, input.mimeType);
+          await tx.insert(documents).values({ filename: input.filename, mimeType: input.mimeType, storageKey: stored.key, storageUrl: stored.url, uploadedBy: ctx.user.email ?? "administrator" });
+          for (const row of rows) {
+            await tx.insert(classes).values({ name: row.className }).onConflictDoNothing();
+            const classRows = await tx.select().from(classes).where(eq(classes.name, row.className)).limit(1);
+            const inserted = await tx.insert(learners).values({ fullName: row.fullName, surname: row.surname, className: row.className, classId: classRows[0]?.id }).returning({ id: learners.id });
+            const learnerId = inserted[0]?.id;
+            if (learnerId && row.activityName && row.marks !== undefined && row.totalMarks !== undefined) await tx.insert(performanceEntries).values({ learnerId, activityName: row.activityName, activityType: row.activityType || "Imported", marks: row.marks, totalMarks: row.totalMarks });
+          }
+        });
+        return { success: true, importedRows: rows.length } as const;
+      }),
       list: adminProcedure.query(async () => {
         const db = await getDb();
         if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." });
         return db.select().from(documents).orderBy(desc(documents.createdAt));
+      }),
+    }),
+    attendance: router({
+      list: adminProcedure.input(z.object({ learnerId: z.number().int().positive().optional() }).default({})).query(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." });
+        return input.learnerId ? db.select().from(attendanceRecords).where(eq(attendanceRecords.learnerId, input.learnerId)).orderBy(desc(attendanceRecords.attendanceDate)) : db.select().from(attendanceRecords).orderBy(desc(attendanceRecords.attendanceDate));
+      }),
+      create: adminProcedure.input(z.object({ learnerId: z.number().int().positive(), attendanceDate: z.coerce.date(), status: z.enum(["present", "absent", "late", "excused"]), note: z.string().max(500).optional() })).mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." });
+        await db.insert(attendanceRecords).values(input);
+        return { success: true } as const;
       }),
     }),
     updates: router({
@@ -166,14 +237,26 @@ export const appRouter = router({
         if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." });
         return db.select().from(urgentUpdates).orderBy(desc(urgentUpdates.createdAt));
       }),
-      create: adminProcedure.input(z.object({ title: z.string().min(1).max(180), body: z.string().min(1), isPublished: z.boolean().default(false) })).mutation(async ({ input }) => {
+      create: adminProcedure.input(z.object({ title: z.string().min(1).max(180), body: z.string().min(1), isPublished: z.boolean().default(false), expiresAt: z.coerce.date().optional() })).mutation(async ({ input }) => {
         const db = await getDb();
         if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." });
-        await db.insert(urgentUpdates).values({ title: input.title, body: input.body, isPublished: input.isPublished ? 1 : 0 });
+        await db.insert(urgentUpdates).values({ title: input.title, body: input.body, isPublished: input.isPublished ? 1 : 0, expiresAt: input.expiresAt ?? null });
+        return { success: true } as const;
+      }),
+      update: adminProcedure.input(z.object({ id: z.number().int().positive(), title: z.string().min(1).max(180), body: z.string().min(1), isPublished: z.boolean(), expiresAt: z.coerce.date().optional() })).mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." });
+        await db.update(urgentUpdates).set({ title: input.title, body: input.body, isPublished: input.isPublished ? 1 : 0, expiresAt: input.expiresAt ?? null }).where(eq(urgentUpdates.id, input.id));
         return { success: true } as const;
       }),
     }),
     performance: router({
+      summary: adminProcedure.query(async () => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." });
+        const [learnerRows, markRows] = await Promise.all([db.select().from(learners), db.select().from(performanceEntries)]);
+        return learnerRows.map(learner => { const rows = markRows.filter(row => row.learnerId === learner.id); const achieved = rows.reduce((sum, row) => sum + row.marks, 0); const possible = rows.reduce((sum, row) => sum + row.totalMarks, 0); return { learnerId: learner.id, learnerName: `${learner.fullName} ${learner.surname}`, className: learner.className, entries: rows.length, percentage: possible ? Math.round((achieved / possible) * 100) : null }; });
+      }),
       list: adminProcedure.input(z.object({ learnerId: z.number().int().positive().optional() }).default({})).query(async ({ input }) => {
         const db = await getDb();
         if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." });

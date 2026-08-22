@@ -61,6 +61,16 @@ export const performanceEntries = pgTable("performance_entries", {
   createdAt: timestamp("createdAt", { withTimezone: true }).defaultNow().notNull(),
 });
 
+export const attendanceRecords = pgTable("attendance_records", {
+  id: serial("id").primaryKey(),
+  learnerId: integer("learnerId").notNull().references(() => learners.id, { onDelete: "cascade" }),
+  attendanceDate: timestamp("attendanceDate", { withTimezone: true }).notNull(),
+  status: varchar("status", { length: 20 }).notNull(),
+  note: text("note"),
+  createdAt: timestamp("createdAt", { withTimezone: true }).defaultNow().notNull(),
+});
+
+
 export const siteContent = pgTable("site_content", {
   id: serial("id").primaryKey(),
   contentKey: varchar("contentKey", { length: 100 }).notNull().unique(),
@@ -89,12 +99,21 @@ export const urgentUpdates = pgTable("urgent_updates", {
   expiresAt: timestamp("expiresAt", { withTimezone: true }),
 });
 
+export const urgentUpdateReads = pgTable("urgent_update_reads", {
+  parentAccountId: integer("parentAccountId").notNull().references(() => parentAccounts.id, { onDelete: "cascade" }),
+  updateId: integer("updateId").notNull().references(() => urgentUpdates.id, { onDelete: "cascade" }),
+  readAt: timestamp("readAt", { withTimezone: true }).defaultNow().notNull(),
+}, table => ({
+  pk: primaryKey({ columns: [table.parentAccountId, table.updateId] }),
+}));
+
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 export type ParentAccount = typeof parentAccounts.$inferSelect;
 export type Class = typeof classes.$inferSelect;
 export type Learner = typeof learners.$inferSelect;
 export type PerformanceEntry = typeof performanceEntries.$inferSelect;
+export type AttendanceRecord = typeof attendanceRecords.$inferSelect;
 export type SiteContent = typeof siteContent.$inferSelect;
 export type Document = typeof documents.$inferSelect;
 export type UrgentUpdate = typeof urgentUpdates.$inferSelect;

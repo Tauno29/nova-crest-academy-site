@@ -85,3 +85,16 @@
 - [x] Import existing Nova Crest database data into Supabase with an auditable, reversible process.
 - [x] Validate admin, parent, admissions, content, document, and performance workflows against Supabase.
 - [x] Save a Supabase migration checkpoint only after PostgreSQL schema and runtime verification passes.
+
+## Completion expansion
+
+- [x] Add attendance records, entry, retrieval, and parent summaries.
+- [x] Add aggregate multi-child performance reports and export-ready admin summaries.
+- [x] Add parent account reset/deactivation and credential delivery workflow.
+- [x] Parse supported class-list PDF/DOCX files and import learners, classes, and marks.
+- [x] Add document management actions and import-result feedback.
+- [x] Connect editable site content to public page rendering.
+- [x] Add urgent-update editing, expiry, read/unread state, and parent visibility.
+- [x] Add the Admin Panel link to the public site taskbar and mobile menu.
+- [x] Add focused Vitest and browser validation for the expanded workflows.
+- [ ] Save a final completion checkpoint after all expanded requirements pass validation.
