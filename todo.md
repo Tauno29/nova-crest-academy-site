@@ -150,3 +150,4 @@
 - [x] Add focused Vitest coverage for gallery, alert, learner registry, fee, school-info procedures, and route protection.
 - [x] Implement secure S3-backed Gallery Media upload/picker and public bindings with safe fallbacks.
 - [x] Save a final rebuilt Admin Portal checkpoint after validation.
+- [x] Fix the `/admin` tRPC `publicSite.alert` procedure mismatch and verify the repaired route.
