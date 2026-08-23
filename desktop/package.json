@@ -1,0 +1,22 @@
+{
+  "name": "nova-crest-admin-desktop",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Nova Crest Academy Windows administration desktop client",
+  "main": "main.cjs",
+  "scripts": {
+    "start": "electron .",
+    "package:win": "electron-builder --win nsis portable"
+  },
+  "devDependencies": {
+    "electron": "^37.0.0",
+    "electron-builder": "^26.0.0"
+  },
+  "build": {
+    "appId": "net.novacrestacademy.admin",
+    "productName": "Nova Crest Admin",
+    "files": ["main.cjs", "preload.cjs", "renderer/**/*"],
+    "win": { "target": ["nsis", "portable"], "artifactName": "NovaCrestAdmin-${version}-${arch}.${ext}" }
+  }
+}
+
