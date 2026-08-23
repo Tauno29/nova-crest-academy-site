@@ -35,6 +35,10 @@ export const learners = pgTable("learners", {
   id: serial("id").primaryKey(),
   fullName: varchar("fullName", { length: 160 }).notNull(),
   surname: varchar("surname", { length: 120 }).notNull(),
+  studentId: varchar("studentId", { length: 80 }),
+  parentPinHash: varchar("parentPinHash", { length: 128 }),
+  teacher: varchar("teacher", { length: 160 }),
+  subjects: text("subjects"),
   className: varchar("className", { length: 80 }).notNull(),
   classId: integer("classId").references(() => classes.id, { onDelete: "set null" }),
   parentAccountId: integer("parentAccountId").references(() => parentAccounts.id, { onDelete: "set null" }),
@@ -120,3 +124,49 @@ export type AttendanceRecord = typeof attendanceRecords.$inferSelect;
 export type SiteContent = typeof siteContent.$inferSelect;
 export type Document = typeof documents.$inferSelect;
 export type UrgentUpdate = typeof urgentUpdates.$inferSelect;
+
+export const galleryMedia = pgTable("gallery_media", {
+  id: serial("id").primaryKey(),
+  title: varchar("title", { length: 180 }).notNull(),
+  category: varchar("category", { length: 80 }).notNull(),
+  imageUrl: text("imageUrl").notNull(),
+  createdAt: timestamp("createdAt", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const siteAlertConfig = pgTable("site_alert_config", {
+  id: serial("id").primaryKey(),
+  enabled: integer("enabled").default(1).notNull(),
+  message: text("message").notNull(),
+  buttonLabel: varchar("buttonLabel", { length: 80 }).notNull(),
+  destination: varchar("destination", { length: 255 }).notNull(),
+  updatedAt: timestamp("updatedAt", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const feeStructures = pgTable("fee_structures", {
+  id: serial("id").primaryKey(),
+  academicYear: varchar("academicYear", { length: 20 }).notNull().unique(),
+  kindergarten: varchar("kindergarten", { length: 80 }).notNull(),
+  prePrimary: varchar("prePrimary", { length: 80 }).notNull(),
+  grade1to3: varchar("grade1to3", { length: 80 }).notNull(),
+  developmentFund: varchar("developmentFund", { length: 80 }).notNull(),
+  hostelBoarding: varchar("hostelBoarding", { length: 80 }).notNull(),
+  registrationFee: varchar("registrationFee", { length: 80 }).notNull(),
+  updatedAt: timestamp("updatedAt", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const schoolContactInfo = pgTable("school_contact_info", {
+  id: serial("id").primaryKey(),
+  phone: varchar("phone", { length: 80 }).notNull(),
+  whatsapp: varchar("whatsapp", { length: 80 }).notNull(),
+  email: varchar("email", { length: 320 }).notNull(),
+  location: varchar("location", { length: 180 }).notNull(),
+  postalBox: varchar("postalBox", { length: 180 }).notNull(),
+  registrationNumber: varchar("registrationNumber", { length: 80 }).notNull(),
+  nextTermDate: varchar("nextTermDate", { length: 80 }).notNull(),
+  updatedAt: timestamp("updatedAt", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export type GalleryMedia = typeof galleryMedia.$inferSelect;
+export type SiteAlertConfig = typeof siteAlertConfig.$inferSelect;
+export type FeeStructure = typeof feeStructures.$inferSelect;
+export type SchoolContactInfo = typeof schoolContactInfo.$inferSelect;

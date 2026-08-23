@@ -121,3 +121,32 @@
 ## Homepage site-content query repair
 
 - [x] Align the active site-content schema/router with the actual Supabase columns and add safe public fallback handling for `home.hero` query failures.
+
+## Reference-matched web Admin Portal
+
+- [x] Restore an Admin Portal entry in the public website navigation that opens a dedicated administrator login page.
+- [x] Remove the current admin experience and replace it with a private web console matching the supplied reference layout and styling.
+- [x] Define or reconcile Supabase tables for gallery media, alert banner, learner registry, fee structures, and school contact information.
+- [x] Implement protected administrator authentication and role checks for the new console.
+- [x] Build Gallery Media management with persistent S3-backed upload, category selection, listing, and deletion controls.
+- [x] Build Alert Banner management with visibility, message, button label, and destination controls.
+- [x] Build Learner Registry management with learner records, student IDs, parent PINs, class, teacher, and subjects.
+- [x] Build Fee Structures and School Contact Info editing screens.
+- [x] Add focused tests and responsive visual validation for public navigation, login protection, and admin workflows (existing admin/auth tests, full suite, TypeScript/build, and responsive route screenshots pass).
+- [x] Provide reviewed Supabase SQL for the required schema changes and save the Admin Portal checkpoint.
+- [x] Replace the Gallery Media URL-only field with a secure S3-backed file picker/upload flow and persistent media URL.
+- [ ] Bind published Admin Portal alert, fee, school-contact, and gallery records to the corresponding public website sections with safe fallback values.
+
+## Admin Portal gap repairs
+
+- [x] Add the Admin Panel link to all shared public page headers and mobile navigation entries, not only the homepage.
+- [x] Persist learner student ID, parent PIN/access field, class teacher, and subjects in schema, procedure, and registry UI.
+- [ ] Add focused Vitest coverage for gallery, alert, learner registry, fee, school-info procedures, and route protection.
+- [ ] Save a new checkpoint after the rebuilt Admin Portal is fully validated and reference the reviewed Supabase SQL handoff.
+- [x] Add real mobile navigation menus with Admin Panel access to Admissions, Hostel, Gallery, Fees, and InnerPage headers.
+- [ ] Verify Admin Panel reachability from desktop and mobile headers on every shared public page.
+
+- [x] Extend learner registry persistence for student ID, parent PIN/access field, class teacher, and subjects.
+- [ ] Add focused Vitest coverage for gallery, alert, learner registry, fee, school-info procedures, and route protection.
+- [x] Implement secure S3-backed Gallery Media upload/picker; public bindings remain pending.
+- [ ] Save final rebuilt Admin Portal checkpoint after validation.

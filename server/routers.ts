@@ -11,7 +11,27 @@ import { PARENT_SESSION_COOKIE, createParentSession, getParentCookieOptions } fr
 import { getDb } from "./db";
 import { extractClassListRows } from "./classListImport";
 import { storagePut } from "./storage";
-import { attendanceRecords, classes, documents, learners, parentAccountLearners, parentAccounts, performanceEntries, siteContent, urgentUpdateReads, urgentUpdates } from "../drizzle/schema";
+import { attendanceRecords, classes, documents, feeStructures, galleryMedia, learners, parentAccountLearners, parentAccounts, performanceEntries, schoolContactInfo, siteAlertConfig, siteContent, urgentUpdateReads, urgentUpdates } from "../drizzle/schema";
+
+const galleryInput = z.object({ title: z.string().min(1).max(180), category: z.string().min(1).max(80), imageUrl: z.string().url() });
+const galleryUploadInput = z.object({ title: z.string().min(1).max(180), category: z.string().min(1).max(80), filename: z.string().min(1).max(180), mimeType: z.enum(["image/jpeg", "image/png", "image/webp", "image/gif"]), dataUrl: z.string().startsWith("data:").max(8_000_000) });
+const alertInput = z.object({ enabled: z.boolean(), message: z.string().min(1), buttonLabel: z.string().min(1).max(80), destination: z.string().min(1).max(255) });
+const feeInput = z.object({ academicYear: z.string().min(1).max(20), kindergarten: z.string().min(1).max(80), prePrimary: z.string().min(1).max(80), grade1to3: z.string().min(1).max(80), developmentFund: z.string().min(1).max(80), hostelBoarding: z.string().min(1).max(80), registrationFee: z.string().min(1).max(80) });
+const contactInput = z.object({ phone: z.string().min(1).max(80), whatsapp: z.string().min(1).max(80), email: z.string().email(), location: z.string().min(1).max(180), postalBox: z.string().min(1).max(180), registrationNumber: z.string().min(1).max(80), nextTermDate: z.string().min(1).max(80) });
+
+const learnerPublicSelection = {
+  id: learners.id,
+  fullName: learners.fullName,
+  surname: learners.surname,
+  studentId: learners.studentId,
+  teacher: learners.teacher,
+  subjects: learners.subjects,
+  className: learners.className,
+  classId: learners.classId,
+  parentAccountId: learners.parentAccountId,
+  createdAt: learners.createdAt,
+  updatedAt: learners.updatedAt,
+};
 
 const contentInput = z.object({
   contentKey: z.string().min(1).max(100),
@@ -55,7 +75,7 @@ export const appRouter = router({
         return { children: [], performance: [], attendance: [], updates, readIds: reads.map(read => read.updateId) };
       }
       const [children, performance, attendance, updates, reads] = await Promise.all([
-        db.select().from(learners).where(inArray(learners.id, ids)),
+        db.select(learnerPublicSelection).from(learners).where(inArray(learners.id, ids)),
         db.select().from(performanceEntries).where(inArray(performanceEntries.learnerId, ids)).orderBy(desc(performanceEntries.performedAt)),
         db.select().from(attendanceRecords).where(inArray(attendanceRecords.learnerId, ids)).orderBy(desc(attendanceRecords.attendanceDate)),
         db.select().from(urgentUpdates).where(and(eq(urgentUpdates.isPublished, 1), or(isNull(urgentUpdates.expiresAt), gt(urgentUpdates.expiresAt, new Date())))).orderBy(desc(urgentUpdates.createdAt)),
@@ -136,12 +156,22 @@ export const appRouter = router({
       list: adminProcedure.query(async () => {
         const db = await getDb();
         if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." });
-        return db.select().from(learners).orderBy(learners.className, learners.surname, learners.fullName);
+        return db.select(learnerPublicSelection).from(learners).orderBy(learners.className, learners.surname, learners.fullName);
       }),
-      create: adminProcedure.input(z.object({ fullName: z.string().min(2).max(160), surname: z.string().min(2).max(120), className: z.string().min(1).max(80), classId: z.number().int().positive().optional() })).mutation(async ({ input }) => {
+      create: adminProcedure.input(z.object({
+        fullName: z.string().min(2).max(160),
+        surname: z.string().min(2).max(120),
+        studentId: z.string().min(1).max(80),
+        parentPin: z.string().regex(/^\\d{4}$/, "Parent PIN must be exactly four digits."),
+        teacher: z.string().max(160).optional(),
+        subjects: z.string().max(2000).optional(),
+        className: z.string().min(1).max(80),
+        classId: z.number().int().positive().optional(),
+      })).mutation(async ({ input }) => {
         const db = await getDb();
         if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." });
-        await db.insert(learners).values(input);
+        const { parentPin, ...learnerInput } = input;
+        await db.insert(learners).values({ ...learnerInput, parentPinHash: hashParentAccessCode(parentPin) });
         return { success: true } as const;
       }),
     }),
@@ -274,6 +304,24 @@ export const appRouter = router({
         await db.insert(performanceEntries).values(input);
         return { success: true, percentage: Math.round((input.marks / input.totalMarks) * 100) } as const;
       }),
+    }),
+    gallery: router({
+      list: adminProcedure.query(async () => { const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." }); return db.select().from(galleryMedia).orderBy(desc(galleryMedia.createdAt)); }),
+      create: adminProcedure.input(galleryInput).mutation(async ({ input }) => { const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." }); await db.insert(galleryMedia).values(input); return { success: true } as const; }),
+      upload: adminProcedure.input(galleryUploadInput).mutation(async ({ input }) => { const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." }); const encoded = input.dataUrl.split(",", 2)[1]; if (!encoded) throw new TRPCError({ code: "BAD_REQUEST", message: "Invalid image data." }); const safeName = input.filename.replace(/[^a-zA-Z0-9._-]/g, "-"); const stored = await storagePut(`gallery/${Date.now()}-${safeName}`, Buffer.from(encoded, "base64"), input.mimeType); await db.insert(galleryMedia).values({ title: input.title, category: input.category, imageUrl: stored.url }); return { success: true, url: stored.url } as const; }),
+      remove: adminProcedure.input(z.object({ id: z.number().int().positive() })).mutation(async ({ input }) => { const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." }); await db.delete(galleryMedia).where(eq(galleryMedia.id, input.id)); return { success: true } as const; }),
+    }),
+    alert: router({
+      get: adminProcedure.query(async () => { const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." }); return (await db.select().from(siteAlertConfig).limit(1))[0] ?? null; }),
+      save: adminProcedure.input(alertInput).mutation(async ({ input }) => { const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." }); const existing = (await db.select({ id: siteAlertConfig.id }).from(siteAlertConfig).limit(1))[0]; if (existing) await db.update(siteAlertConfig).set({ enabled: input.enabled ? 1 : 0, message: input.message, buttonLabel: input.buttonLabel, destination: input.destination, updatedAt: new Date() }).where(eq(siteAlertConfig.id, existing.id)); else await db.insert(siteAlertConfig).values({ enabled: input.enabled ? 1 : 0, message: input.message, buttonLabel: input.buttonLabel, destination: input.destination }); return { success: true } as const; }),
+    }),
+    fees: router({
+      get: adminProcedure.query(async () => { const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." }); return (await db.select().from(feeStructures).orderBy(desc(feeStructures.updatedAt)).limit(1))[0] ?? null; }),
+      save: adminProcedure.input(feeInput).mutation(async ({ input }) => { const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." }); await db.insert(feeStructures).values({ ...input, updatedAt: new Date() }).onConflictDoUpdate({ target: feeStructures.academicYear, set: { ...input, updatedAt: new Date() } }); return { success: true } as const; }),
+    }),
+    schoolInfo: router({
+      get: adminProcedure.query(async () => { const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." }); return (await db.select().from(schoolContactInfo).limit(1))[0] ?? null; }),
+      save: adminProcedure.input(contactInput).mutation(async ({ input }) => { const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." }); const existing = (await db.select({ id: schoolContactInfo.id }).from(schoolContactInfo).limit(1))[0]; if (existing) await db.update(schoolContactInfo).set({ ...input, updatedAt: new Date() }).where(eq(schoolContactInfo.id, existing.id)); else await db.insert(schoolContactInfo).values(input); return { success: true } as const; }),
     }),
     content: router({
       list: adminProcedure.query(async () => {
