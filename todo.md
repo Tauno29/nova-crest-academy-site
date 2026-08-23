@@ -158,3 +158,4 @@
 - [x] Include the existing public gallery image assets in the Admin Gallery Media manager without duplicating managed database records.
 - [x] Make database-managed gallery uploads deletable from the Admin Portal; deletion removes the database reference, while original public reference assets remain protected.
 - [x] Show a clearly visible delete button beside every database-managed uploaded gallery image in the Admin Portal.
+- [x] Add persistent hide/delete controls for the original public gallery assets so every gallery card has an adjacent delete button and deleted assets disappear from the public gallery.

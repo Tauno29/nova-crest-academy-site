@@ -11,7 +11,7 @@ import { PARENT_SESSION_COOKIE, createParentSession, getParentCookieOptions } fr
 import { getDb } from "./db";
 import { extractClassListRows } from "./classListImport";
 import { storagePut } from "./storage";
-import { attendanceRecords, classes, documents, feeStructures, galleryMedia, learners, parentAccountLearners, parentAccounts, performanceEntries, schoolContactInfo, siteAlertConfig, siteContent, urgentUpdateReads, urgentUpdates } from "../drizzle/schema";
+import { attendanceRecords, classes, documents, feeStructures, galleryAssetVisibility, galleryMedia, learners, parentAccountLearners, parentAccounts, performanceEntries, schoolContactInfo, siteAlertConfig, siteContent, urgentUpdateReads, urgentUpdates } from "../drizzle/schema";
 
 const galleryInput = z.object({ title: z.string().min(1).max(180), category: z.string().min(1).max(80), imageUrl: z.string().url() });
 const galleryUploadInput = z.object({ title: z.string().min(1).max(180), category: z.string().min(1).max(80), filename: z.string().min(1).max(180), mimeType: z.enum(["image/jpeg", "image/png", "image/webp", "image/gif"]), dataUrl: z.string().startsWith("data:").max(8_000_000) });
@@ -108,6 +108,7 @@ export const appRouter = router({
     fees: publicProcedure.query(async () => { const db = await getDb(); if (!db) return null; try { return (await db.select().from(feeStructures).orderBy(desc(feeStructures.updatedAt)).limit(1))[0] ?? null; } catch { return null; } }),
     contact: publicProcedure.query(async () => { const db = await getDb(); if (!db) return null; try { return (await db.select().from(schoolContactInfo).limit(1))[0] ?? null; } catch { return null; } }),
     gallery: publicProcedure.query(async () => { const db = await getDb(); if (!db) return []; try { return await db.select().from(galleryMedia).orderBy(desc(galleryMedia.createdAt)); } catch { return []; } }),
+    galleryHidden: publicProcedure.query(async () => { const db = await getDb(); if (!db) return []; try { return (await db.select({ imageUrl: galleryAssetVisibility.imageUrl }).from(galleryAssetVisibility)).map(item => item.imageUrl); } catch { return []; } }),
   }),
   admissions: router({
     submit: publicProcedure
@@ -316,6 +317,7 @@ export const appRouter = router({
       create: adminProcedure.input(galleryInput).mutation(async ({ input }) => { const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." }); await db.insert(galleryMedia).values(input); return { success: true } as const; }),
       upload: adminProcedure.input(galleryUploadInput).mutation(async ({ input }) => { const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." }); const encoded = input.dataUrl.split(",", 2)[1]; if (!encoded) throw new TRPCError({ code: "BAD_REQUEST", message: "Invalid image data." }); const safeName = input.filename.replace(/[^a-zA-Z0-9._-]/g, "-"); const stored = await storagePut(`gallery/${Date.now()}-${safeName}`, Buffer.from(encoded, "base64"), input.mimeType); await db.insert(galleryMedia).values({ title: input.title, category: input.category, imageUrl: stored.url }); return { success: true, url: stored.url } as const; }),
       remove: adminProcedure.input(z.object({ id: z.number().int().positive() })).mutation(async ({ input }) => { const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." }); await db.delete(galleryMedia).where(eq(galleryMedia.id, input.id)); return { success: true } as const; }),
+      hideStatic: adminProcedure.input(z.object({ imageUrl: z.string().url() })).mutation(async ({ input }) => { const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." }); await db.insert(galleryAssetVisibility).values({ imageUrl: input.imageUrl }).onConflictDoNothing(); return { success: true } as const; }),
     }),
     alert: router({
       get: adminProcedure.query(async () => { const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." }); return (await db.select().from(siteAlertConfig).limit(1))[0] ?? null; }),

@@ -133,6 +133,11 @@ export const galleryMedia = pgTable("gallery_media", {
   createdAt: timestamp("createdAt", { withTimezone: true }).defaultNow().notNull(),
 });
 
+export const galleryAssetVisibility = pgTable("gallery_asset_visibility", {
+  imageUrl: text("imageUrl").primaryKey(),
+  hiddenAt: timestamp("hiddenAt", { withTimezone: true }).defaultNow().notNull(),
+});
+
 export const siteAlertConfig = pgTable("site_alert_config", {
   id: serial("id").primaryKey(),
   enabled: integer("enabled").default(1).notNull(),
@@ -167,6 +172,7 @@ export const schoolContactInfo = pgTable("school_contact_info", {
 });
 
 export type GalleryMedia = typeof galleryMedia.$inferSelect;
+export type GalleryAssetVisibility = typeof galleryAssetVisibility.$inferSelect;
 export type SiteAlertConfig = typeof siteAlertConfig.$inferSelect;
 export type FeeStructure = typeof feeStructures.$inferSelect;
 export type SchoolContactInfo = typeof schoolContactInfo.$inferSelect;
