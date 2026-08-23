@@ -118,3 +118,5 @@
 - [x] Validate the desktop workspace source, Electron runtime, packaging configuration, and web-app preservation.
 - [x] Prepare a downloadable ZIP containing the website and Electron desktop source without secrets, dependencies, logs, or generated artifacts.
 - [x] Remove the Parent Portal completely from public navigation, routes, and public page source while preserving the desktop admin application.
+- [ ] Remove the Windows desktop application source, packaging configuration, and related documentation.
+- [ ] Remove associated Supabase admin records and tables for learners, classes, parent accounts, marks, attendance, documents, urgent updates, and editable site content while preserving shared authentication and public admissions.
