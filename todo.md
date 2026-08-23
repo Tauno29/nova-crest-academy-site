@@ -157,3 +157,4 @@
 - [x] Fix the fresh Supabase schema script’s PostgreSQL `CREATE TYPE IF NOT EXISTS` syntax error; the corrected rerunnable script is ready for execution in the new Supabase project.
 - [x] Include the existing public gallery image assets in the Admin Gallery Media manager without duplicating managed database records.
 - [x] Make database-managed gallery uploads deletable from the Admin Portal; deletion removes the database reference, while original public reference assets remain protected.
+- [x] Show a clearly visible delete button beside every database-managed uploaded gallery image in the Admin Portal.
