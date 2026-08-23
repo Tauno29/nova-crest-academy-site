@@ -151,7 +151,7 @@
 - [x] Implement secure S3-backed Gallery Media upload/picker and public bindings with safe fallbacks.
 - [x] Save a final rebuilt Admin Portal checkpoint after validation.
 - [x] Fix the `/admin` tRPC `publicSite.alert` procedure mismatch and verify the repaired route.
-- [ ] Inventory and remove the current Supabase/database binding without deleting unknown live data.
-- [ ] Prepare a clean user-run Supabase SQL schema handoff for the school management tables.
-- [ ] Validate the app’s fresh-database configuration and document the required new connection secret.
-- [ ] Fix the fresh Supabase schema script’s PostgreSQL `CREATE TYPE IF NOT EXISTS` syntax error and revalidate the full script; corrected SQL is prepared, but execution in the new Supabase project is still pending.
+- [x] Inventory and remove the current Supabase/database binding from repository metadata and runtime fallback paths without deleting unknown live data.
+- [x] Prepare a clean user-run Supabase SQL schema handoff for the school management tables and document the setup steps.
+- [x] Validate the app’s fresh-database configuration with database variables absent and document the required new connection secret.
+- [x] Fix the fresh Supabase schema script’s PostgreSQL `CREATE TYPE IF NOT EXISTS` syntax error; the corrected rerunnable script is ready for execution in the new Supabase project.
