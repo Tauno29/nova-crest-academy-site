@@ -102,21 +102,21 @@
 ## Windows desktop admin replacement
 
 - [x] Safely inspect the supplied Nova Crest Admin executable without running it.
-- [ ] Confirm and bind a local Windows development folder for desktop-app output.
-- [ ] Define the desktop shell, navigation, and visual parity targets from the supplied reference.
-- [ ] Replace the web admin experience with a Windows desktop app while preserving Supabase workflows.
-- [ ] Rebuild admin authentication, learner/class management, parents, marks, attendance, updates, documents, and content controls in the desktop app.
-- [ ] Package and validate a Windows installer or executable without destroying the existing recoverable web checkpoint.
-- [ ] Save a desktop-app checkpoint and provide safe installation instructions.
+- [x] Confirm and bind a local Windows development folder for desktop-app output (superseded by confirmed desktop-app removal).
+- [x] Define the desktop shell, navigation, and visual parity targets from the supplied reference (superseded by confirmed desktop-app removal).
+- [x] Replace the web admin experience with a Windows desktop app while preserving Supabase workflows (superseded by confirmed desktop-app removal).
+- [x] Rebuild admin authentication, learner/class management, parents, marks, attendance, updates, documents, and content controls in the desktop app (superseded by confirmed desktop-app removal).
+- [x] Package and validate a Windows installer or executable without destroying the existing recoverable web checkpoint (superseded by confirmed desktop-app removal).
+- [x] Save a desktop-app checkpoint and provide safe installation instructions (superseded by confirmed desktop-app removal).
 
 ## Option A desktop shell
 
 - [x] Add a separate Windows desktop-app workspace without deleting the recoverable web admin panel.
 - [x] Recreate the reference admin shell with a branded login, sidebar, top bar, cards, tables, and responsive desktop layout.
 - [x] Add desktop packaging configuration and secure environment handoff for Supabase/API access.
-- [ ] Port the existing admin management screens into the desktop shell with authenticated backend access.
+- [x] Port the existing admin management screens into the desktop shell with authenticated backend access (superseded by confirmed desktop-app removal).
 - [x] Validate the desktop workspace source, Electron runtime, packaging configuration, and web-app preservation.
 - [x] Prepare a downloadable ZIP containing the website and Electron desktop source without secrets, dependencies, logs, or generated artifacts.
 - [x] Remove the Parent Portal completely from public navigation, routes, and public page source while preserving the desktop admin application.
-- [ ] Remove the Windows desktop application source, packaging configuration, and related documentation.
-- [ ] Remove associated Supabase admin records and tables for learners, classes, parent accounts, marks, attendance, documents, urgent updates, and editable site content while preserving shared authentication and public admissions.
+- [x] Remove the Windows desktop application source, packaging configuration, and related documentation.
+- [x] Remove associated Supabase admin records and tables for learners, classes, parent accounts, marks, attendance, documents, urgent updates, and editable site content while preserving shared authentication and public admissions.

@@ -8,7 +8,6 @@ import { registerStorageProxy } from "./storageProxy";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
-import { ADMIN_SESSION_COOKIE, createAdminSession, getAdminCookieOptions, validateAdminCredentials } from "../adminAuth";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -37,17 +36,6 @@ async function startServer() {
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
   registerStorageProxy(app);
   registerOAuthRoutes(app);
-  app.post("/api/desktop/login", async (req, res) => {
-    const email = typeof req.body?.email === "string" ? req.body.email : "";
-    const password = typeof req.body?.password === "string" ? req.body.password : "";
-    if (!validateAdminCredentials(email, password)) {
-      res.status(401).json({ error: "The administrator email or password is incorrect." });
-      return;
-    }
-    const token = await createAdminSession(email);
-    res.cookie(ADMIN_SESSION_COOKIE, token, getAdminCookieOptions(req));
-    res.json({ success: true, email: email.trim().toLowerCase() });
-  });
   // tRPC API
   app.use(
     "/api/trpc",

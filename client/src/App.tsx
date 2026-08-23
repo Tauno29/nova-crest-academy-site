@@ -10,7 +10,6 @@ import AdmissionsPage from "./pages/AdmissionsPage";
 import HostelPage from "./pages/HostelPage";
 import GalleryPage from "./pages/GalleryPage";
 import FeesPage from "./pages/FeesPage";
-import AdminPortalPage from "./pages/AdminPortalPage";
 function Router() {
   // make sure to consider if you need authentication for certain routes
   return (
@@ -20,14 +19,6 @@ function Router() {
       <Route path="/hostel" component={HostelPage} />
       <Route path="/gallery" component={GalleryPage} />
       <Route path="/fees" component={FeesPage} />
-      <Route path="/admin" component={AdminPortalPage} />
-      <Route path="/admin/content" component={AdminPortalPage} />
-      <Route path="/admin/learners" component={AdminPortalPage} />
-      <Route path="/admin/parents" component={AdminPortalPage} />
-      <Route path="/admin/marks" component={AdminPortalPage} />
-      <Route path="/admin/attendance" component={AdminPortalPage} />
-      <Route path="/admin/updates" component={AdminPortalPage} />
-      <Route path="/admin/documents" component={AdminPortalPage} />
       <Route component={Home} />
     </Switch>
   );
