@@ -155,3 +155,4 @@
 - [x] Prepare a clean user-run Supabase SQL schema handoff for the school management tables and document the setup steps.
 - [x] Validate the app’s fresh-database configuration with database variables absent and document the required new connection secret.
 - [x] Fix the fresh Supabase schema script’s PostgreSQL `CREATE TYPE IF NOT EXISTS` syntax error; the corrected rerunnable script is ready for execution in the new Supabase project.
+- [x] Include the existing public gallery image assets in the Admin Gallery Media manager without duplicating managed database records.
