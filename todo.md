@@ -116,3 +116,5 @@
 - [x] Add desktop packaging configuration and secure environment handoff for Supabase/API access.
 - [ ] Port the existing admin management screens into the desktop shell with authenticated backend access.
 - [x] Validate the desktop workspace source, Electron runtime, packaging configuration, and web-app preservation.
+- [x] Prepare a downloadable ZIP containing the website and Electron desktop source without secrets, dependencies, logs, or generated artifacts.
+- [x] Remove the Parent Portal completely from public navigation, routes, and public page source while preserving the desktop admin application.
