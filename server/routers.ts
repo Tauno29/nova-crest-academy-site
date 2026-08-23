@@ -103,6 +103,12 @@ export const appRouter = router({
       }
     }),
   }),
+  publicSite: router({
+    alert: publicProcedure.query(async () => { const db = await getDb(); if (!db) return null; try { return (await db.select().from(siteAlertConfig).limit(1))[0] ?? null; } catch { return null; } }),
+    fees: publicProcedure.query(async () => { const db = await getDb(); if (!db) return null; try { return (await db.select().from(feeStructures).orderBy(desc(feeStructures.updatedAt)).limit(1))[0] ?? null; } catch { return null; } }),
+    contact: publicProcedure.query(async () => { const db = await getDb(); if (!db) return null; try { return (await db.select().from(schoolContactInfo).limit(1))[0] ?? null; } catch { return null; } }),
+    gallery: publicProcedure.query(async () => { const db = await getDb(); if (!db) return []; try { return await db.select().from(galleryMedia).orderBy(desc(galleryMedia.createdAt)); } catch { return []; } }),
+  }),
   admissions: router({
     submit: publicProcedure
       .input(z.object({ application: z.record(z.string(), z.string()).refine(value => Object.keys(value).length > 0) }))

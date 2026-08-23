@@ -102,19 +102,19 @@
 ## Windows desktop admin replacement
 
 - [x] Safely inspect the supplied Nova Crest Admin executable without running it.
-- [ ] Confirm and bind a local Windows development folder for desktop-app output.
-- [ ] Define the desktop shell, navigation, and visual parity targets from the supplied reference.
-- [ ] Replace the web admin experience with a Windows desktop app while preserving Supabase workflows.
-- [ ] Rebuild admin authentication, learner/class management, parents, marks, attendance, updates, documents, and content controls in the desktop app.
-- [ ] Package and validate a Windows installer or executable without destroying the existing recoverable web checkpoint.
-- [ ] Save a desktop-app checkpoint and provide safe installation instructions.
+- [x] Close local Windows development-folder work as superseded by the later request to remove the desktop application.
+- [x] Close desktop-shell work as superseded by the later request to remove the desktop application.
+- [x] Close desktop replacement work as superseded by the later request to remove the desktop application.
+- [x] Close desktop management-port work as superseded by the later request to remove the desktop application.
+- [x] Close Windows packaging work as superseded by the later request to remove the desktop application.
+- [x] Close desktop-app checkpoint work as superseded by the later request to remove the desktop application.
 
 ## Option A desktop shell
 
 - [x] Add a separate Windows desktop-app workspace without deleting the recoverable web admin panel.
 - [x] Recreate the reference admin shell with a branded login, sidebar, top bar, cards, tables, and responsive desktop layout.
 - [x] Add desktop packaging configuration and secure environment handoff for Supabase/API access.
-- [ ] Port the existing admin management screens into the desktop shell with authenticated backend access.
+- [x] Close desktop admin-screen porting as superseded by the later request to remove the desktop application.
 - [x] Validate the desktop workspace source, Electron runtime, packaging configuration, and web-app preservation.
 - [x] Prepare a downloadable ZIP containing the website and Electron desktop source without secrets, dependencies, logs, or generated artifacts.
 
@@ -135,18 +135,18 @@
 - [x] Add focused tests and responsive visual validation for public navigation, login protection, and admin workflows (existing admin/auth tests, full suite, TypeScript/build, and responsive route screenshots pass).
 - [x] Provide reviewed Supabase SQL for the required schema changes and save the Admin Portal checkpoint.
 - [x] Replace the Gallery Media URL-only field with a secure S3-backed file picker/upload flow and persistent media URL.
-- [ ] Bind published Admin Portal alert, fee, school-contact, and gallery records to the corresponding public website sections with safe fallback values.
+- [x] Bind published Admin Portal alert, fee, school-contact, and gallery records to the corresponding public website sections with safe fallback values.
 
 ## Admin Portal gap repairs
 
 - [x] Add the Admin Panel link to all shared public page headers and mobile navigation entries, not only the homepage.
 - [x] Persist learner student ID, parent PIN/access field, class teacher, and subjects in schema, procedure, and registry UI.
-- [ ] Add focused Vitest coverage for gallery, alert, learner registry, fee, school-info procedures, and route protection.
-- [ ] Save a new checkpoint after the rebuilt Admin Portal is fully validated and reference the reviewed Supabase SQL handoff.
+- [x] Add focused Vitest coverage for gallery, alert, learner registry, fee, school-info procedures, and route protection.
+- [x] Save a new checkpoint after the rebuilt Admin Portal is fully validated and reference the reviewed Supabase SQL handoff.
 - [x] Add real mobile navigation menus with Admin Panel access to Admissions, Hostel, Gallery, Fees, and InnerPage headers.
-- [ ] Verify Admin Panel reachability from desktop and mobile headers on every shared public page.
+- [x] Verify Admin Panel reachability from desktop and mobile headers on every shared public page.
 
 - [x] Extend learner registry persistence for student ID, parent PIN/access field, class teacher, and subjects.
-- [ ] Add focused Vitest coverage for gallery, alert, learner registry, fee, school-info procedures, and route protection.
-- [x] Implement secure S3-backed Gallery Media upload/picker; public bindings remain pending.
-- [ ] Save final rebuilt Admin Portal checkpoint after validation.
+- [x] Add focused Vitest coverage for gallery, alert, learner registry, fee, school-info procedures, and route protection.
+- [x] Implement secure S3-backed Gallery Media upload/picker and public bindings with safe fallbacks.
+- [x] Save a final rebuilt Admin Portal checkpoint after validation.
