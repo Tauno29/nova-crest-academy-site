@@ -1,10 +1,16 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { appRouter } from "./routers";
 
 const context = { req: {} as never, res: {} as never, user: null, parentAccountId: null };
 const adminContext = { req: {} as never, res: {} as never, user: { id: 0, openId: "admin:test", name: "Test Admin", email: "admin@example.com", loginMethod: "test", role: "admin", createdAt: new Date(), updatedAt: new Date(), lastSignedIn: new Date() } as never, parentAccountId: null };
 
 describe("Admin Portal procedures", () => {
+  it("clears the admin session cookie on logout", async () => {
+    const clearCookie = vi.fn();
+    const caller = appRouter.createCaller({ ...adminContext, req: { protocol: "http", headers: {} } as never, res: { clearCookie } as never });
+    await caller.admin.logout();
+    expect(clearCookie).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({ maxAge: -1 }));
+  });
   it.each([
     ["gallery", () => appRouter.createCaller(context).admin.gallery.list()],
     ["alert", () => appRouter.createCaller(context).admin.alert.get()],
