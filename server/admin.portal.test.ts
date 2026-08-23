@@ -36,6 +36,11 @@ describe("Admin Portal mutation validation", () => {
     await expect(caller.admin.learners.create({ fullName: "Portal Test", surname: "Learner", studentId: "TEST-001", parentPin: "12", className: "Grade 7A" })).rejects.toMatchObject({ code: "BAD_REQUEST" });
   });
 
+  it("allows deletion inputs only for positive database record IDs", async () => {
+    await expect(caller.admin.gallery.remove({ id: 0 })).rejects.toMatchObject({ code: "BAD_REQUEST" });
+    await expect(caller.admin.gallery.remove({ id: -1 })).rejects.toMatchObject({ code: "BAD_REQUEST" });
+  });
+
   it("rejects invalid fee and school-contact mutation payloads", async () => {
     await expect(caller.admin.fees.save({ academicYear: "", kindergarten: "x", prePrimary: "x", grade1to3: "x", developmentFund: "x", hostelBoarding: "x", registrationFee: "x" })).rejects.toMatchObject({ code: "BAD_REQUEST" });
     await expect(caller.admin.schoolInfo.save({ phone: "x", whatsapp: "x", email: "invalid", location: "x", postalBox: "x", registrationNumber: "x", nextTermDate: "x" })).rejects.toMatchObject({ code: "BAD_REQUEST" });
