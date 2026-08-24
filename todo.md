@@ -199,3 +199,6 @@
 - [x] Route `/manus-storage/*` through the Netlify API function so managed gallery assets remain accessible after deployment.
 - [x] Reconcile the complete current project tree with GitHub, including Netlify deployment files, and push any missing changes.
 - [x] Verify the GitHub branch matches local HEAD and contains no tracked secrets or generated artifacts.
+- [x] Run the Netlify serverless API function locally against the production-style frontend build.
+- [x] Exercise safe API, authentication-rejection, and storage-proxy paths without real email sends or production mutations.
+- [x] Record and repair any serverless-specific issues, then rerun the full local validation suite.
