@@ -163,3 +163,7 @@
 - [x] Display the current live site-alert banner text prominently in the Admin Portal Alert Banner editor.
 - [x] Show the effective homepage alert fallback text and settings in the Admin Alert Banner editor when no saved alert record exists.
 - [x] Add a Learner Portal tab to all public navigation and create a simple page with Student ID and PIN fields only.
+- [x] Connect registered learner Student IDs and hashed PINs to secure Learner Portal sign-in with learner-scoped access.
+- [x] Add isolation, invalid-credential, and learner-session Vitest coverage for the new portal sign-in flow.
+- [x] Add Vitest tests for learner.login rejecting wrong Student ID and wrong PIN.
+- [x] Add Vitest tests for learner.portal proving results are scoped to ctx.learnerId and cannot return another learner’s performance or attendance records.

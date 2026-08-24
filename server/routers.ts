@@ -4,10 +4,12 @@ import { z } from "zod";
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
-import { adminProcedure, parentProcedure, publicProcedure, router } from "./_core/trpc";
+import { adminProcedure, learnerProcedure, parentProcedure, publicProcedure, router } from "./_core/trpc";
 import { ADMISSIONS_RECIPIENT, sendAdmissionsEmail } from "./emailjs";
 import { ADMIN_SESSION_COOKIE, createAdminSession, generateParentAccessCode, generateParentUsername, getAdminCookieOptions, hashParentAccessCode, validateAdminCredentials } from "./adminAuth";
 import { PARENT_SESSION_COOKIE, createParentSession, getParentCookieOptions } from "./parentAuth";
+import { LEARNER_SESSION_COOKIE, createLearnerSession, getLearnerCookieOptions } from "./learnerAuth";
+import { hasValidLearnerCredentials, scopeLearnerRecords } from "./learnerPortal.logic";
 import { getDb } from "./db";
 import { extractClassListRows } from "./classListImport";
 import { storagePut } from "./storage";
@@ -90,6 +92,28 @@ export const appRouter = router({
       return { success: true } as const;
     }),
   }),
+  learner: router({
+    login: publicProcedure.input(z.object({ studentId: z.string().min(1).max(80), pin: z.string().regex(/^\d{4}$/, "PIN must be exactly four digits.") })).mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." });
+      const rows = await db.select().from(learners).where(eq(learners.studentId, input.studentId.trim())).limit(1);
+      const learner = rows[0];
+      if (!hasValidLearnerCredentials(learner, input.studentId, input.pin)) throw new TRPCError({ code: "UNAUTHORIZED", message: "The Student ID or PIN is incorrect." });
+      ctx.res.cookie(LEARNER_SESSION_COOKIE, await createLearnerSession(learner.id), getLearnerCookieOptions(ctx.req));
+      return { success: true, learner: { id: learner.id, fullName: learner.fullName, surname: learner.surname } } as const;
+    }),
+    logout: publicProcedure.mutation(({ ctx }) => { ctx.res.clearCookie(LEARNER_SESSION_COOKIE, { ...getLearnerCookieOptions(ctx.req), maxAge: -1 }); return { success: true } as const; }),
+    portal: learnerProcedure.query(async ({ ctx }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." });
+      const [learnerRows, performance, attendance] = await Promise.all([
+        db.select(learnerPublicSelection).from(learners).where(eq(learners.id, ctx.learnerId)).limit(1),
+        db.select().from(performanceEntries).where(eq(performanceEntries.learnerId, ctx.learnerId)).orderBy(desc(performanceEntries.performedAt)),
+        db.select().from(attendanceRecords).where(eq(attendanceRecords.learnerId, ctx.learnerId)).orderBy(desc(attendanceRecords.attendanceDate)),
+      ]);
+      return { learner: learnerRows[0] ?? null, performance: scopeLearnerRecords(performance, ctx.learnerId), attendance: scopeLearnerRecords(attendance, ctx.learnerId) };
+    }),
+  }),
   content: router({
     get: publicProcedure.input(z.object({ contentKey: z.string().min(1).max(100) })).query(async ({ input }) => {
       const db = await getDb();
@@ -169,7 +193,7 @@ export const appRouter = router({
         fullName: z.string().min(2).max(160),
         surname: z.string().min(2).max(120),
         studentId: z.string().min(1).max(80),
-        parentPin: z.string().regex(/^\\d{4}$/, "Parent PIN must be exactly four digits."),
+        parentPin: z.string().regex(/^\d{4}$/, "Parent PIN must be exactly four digits."),
         teacher: z.string().max(160).optional(),
         subjects: z.string().max(2000).optional(),
         className: z.string().min(1).max(80),
