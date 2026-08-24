@@ -229,3 +229,5 @@
 - [x] Ensure the latest Attendance removal is built, synchronized, and protected against stale deployment output; the live Netlify redeploy remains a user-side action.
 - [x] Remove Exam marks completely from the Learner Portal UI while preserving Admin Panel marks management.
 - [x] Add regression coverage proving Exam marks is absent while other learner sections remain available.
+- [x] Diagnose why Exam marks still appears in the deployed Learner Portal after the previous removal checkpoint.
+- [x] Remove any remaining learner-facing Exam marks references and verify the deployed bundle contains none.
