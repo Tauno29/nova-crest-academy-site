@@ -207,3 +207,4 @@
 - [x] Validate deployed image requests and Admin API responses, then push the repair to GitHub.
 - [x] Bundle Express and serverless dependencies into the Netlify Function instead of leaving them external.
 - [x] Replace deployed image URLs that resolve to the SPA fallback with stable, deployable asset URLs.
+- [x] Prevent browser-only PDF parser initialization from crashing the bundled Netlify Function at startup.

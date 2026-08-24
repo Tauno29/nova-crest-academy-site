@@ -1,6 +1,3 @@
-import { PDFParse } from "pdf-parse";
-import mammoth from "mammoth";
-
 export type ClassListRow = {
   fullName: string;
   surname: string;
@@ -29,11 +26,13 @@ export async function extractClassListRows(buffer: Buffer, mimeType: string, fil
   const lowerName = filename.toLowerCase();
   let text = buffer.toString("utf8");
   if (mimeType === "application/pdf" || lowerName.endsWith(".pdf")) {
+    const { PDFParse } = await import("pdf-parse");
     const parser = new PDFParse({ data: buffer });
     const result = await parser.getText();
     text = result.text;
     await parser.destroy();
   } else if (mimeType.includes("wordprocessingml") || lowerName.endsWith(".docx")) {
+    const { default: mammoth } = await import("mammoth");
     const result = await mammoth.extractRawText({ buffer });
     text = result.value;
   }
