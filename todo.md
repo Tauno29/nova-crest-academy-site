@@ -191,3 +191,9 @@
 - [x] Verify the GitHub remote contains the latest checkpointed site commit.
 - [x] Audit tracked GitHub contents for secrets, environment files, credentials, build outputs, logs, and temporary scripts.
 - [x] Verify the GitHub repository file tree contains the intended project files and excludes generated artifacts.
+- [x] Prepare a Netlify-compatible build for the Nova Crest frontend and backend routes without publishing.
+- [x] Add Netlify SPA fallback and serverless API routing configuration compatible with the current tRPC/Express entrypoint.
+- [x] Document required Netlify environment variables and external-service setup without committing secrets.
+- [x] Validate the Netlify-ready build, tests, and configuration, then save a checkpoint.
+- [x] Add regression coverage for Netlify build settings, API rewrite, SPA fallback, and function entrypoint configuration.
+- [x] Route `/manus-storage/*` through the Netlify API function so managed gallery assets remain accessible after deployment.
