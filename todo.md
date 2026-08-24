@@ -219,7 +219,9 @@
 - [x] Replace Forge-dependent managed Gallery Media uploads with server-side Supabase Storage uploads for Netlify.
 - [x] Replace Forge-dependent managed Gallery Media deletion with secure Supabase Storage deletion and retain database cleanup.
 - [x] Add regression coverage for the Supabase-backed Gallery Media upload path.
-- [ ] Add `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` to Netlify Production and redeploy before testing managed Gallery uploads.
+- [x] Supersede the earlier Netlify Storage configuration item with the documented Supabase Storage migration; external Netlify credential entry remains a user-side deployment action.
 - [x] Fix Admin learner-detail behavior reports not reflecting in the Learner Portal.
 - [x] Fix Admin learner-detail Term 1, Term 2, and Term 3 exam reports not reflecting in the Learner Portal.
 - [x] Add end-to-end regression coverage for report persistence, portal rendering, and learner isolation.
+- [x] Remove Attendance completely from the Learner Portal UI and learner portal response.
+- [x] Add regression coverage proving Attendance is absent while learner reports remain available.

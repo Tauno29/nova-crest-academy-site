@@ -35,7 +35,7 @@ const performanceRecords = [
 
 type PortalRecord = { learnerId: number; behaviorNotes: string; term1Report: string; term2Report: string; term3Report: string; updatedAt: Date };
 
-function configurePortal(data: { learner: typeof learner; performance: typeof performanceRecords; attendance: never[]; portalRecord?: PortalRecord }) {
+function configurePortal(data: { learner: typeof learner; performance: typeof performanceRecords; portalRecord?: PortalRecord }) {
   portalQuery.mockReturnValue({ data, isLoading: false });
   loginMutation.mockImplementation((options: { onSuccess?: () => void }) => ({ mutate: () => options.onSuccess?.(), isPending: false }));
   logoutMutation.mockImplementation((options: { onSuccess?: () => void }) => ({ mutate: () => options.onSuccess?.(), isPending: false }));
@@ -52,7 +52,7 @@ afterEach(() => cleanup());
 
 beforeEach(() => {
   vi.clearAllMocks();
-  configurePortal({ learner, performance: performanceRecords, attendance: [] });
+    configurePortal({ learner, performance: performanceRecords });
 });
 
 describe("Learner Portal dashboard sections", () => {
@@ -66,6 +66,7 @@ describe("Learner Portal dashboard sections", () => {
     expect(screen.getByRole("heading", { name: "Test marks" })).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Exam marks" })).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Exam reports by term" })).toBeTruthy();
+    expect(screen.queryByRole("heading", { name: "Attendance" })).toBeNull();
     expect(screen.getAllByText("Mathematics Test 1")).toHaveLength(2);
     expect(screen.getAllByText("Term 1 Examination")).toHaveLength(2);
     expect(screen.getByText("Term 1")).toBeTruthy();
@@ -77,7 +78,6 @@ describe("Learner Portal dashboard sections", () => {
     configurePortal({
       learner,
       performance: [],
-      attendance: [],
       portalRecord: {
         learnerId: learner.id,
         behaviorNotes: "Consistently respectful and engaged in class.",
@@ -99,7 +99,7 @@ describe("Learner Portal dashboard sections", () => {
   });
 
   it("shows explicit empty states instead of inventing learner records", async () => {
-    configurePortal({ learner, performance: [], attendance: [] });
+    configurePortal({ learner, performance: [] });
     render(<LearnerPortalPage />);
     await signIn();
 

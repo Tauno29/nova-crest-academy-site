@@ -145,13 +145,12 @@ export const appRouter = router({
     portal: learnerProcedure.query(async ({ ctx }) => {
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." });
-      const [learnerRows, performance, attendance, recordRows] = await Promise.all([
+      const [learnerRows, performance, recordRows] = await Promise.all([
         db.select(learnerPublicSelection).from(learners).where(eq(learners.id, ctx.learnerId)).limit(1),
         db.select().from(performanceEntries).where(eq(performanceEntries.learnerId, ctx.learnerId)).orderBy(desc(performanceEntries.performedAt)),
-        db.select().from(attendanceRecords).where(eq(attendanceRecords.learnerId, ctx.learnerId)).orderBy(desc(attendanceRecords.attendanceDate)),
         db.select().from(learnerPortalRecords).where(eq(learnerPortalRecords.learnerId, ctx.learnerId)).limit(1),
       ]);
-      return { learner: learnerRows[0] ?? null, performance: scopeLearnerRecords(performance, ctx.learnerId), attendance: scopeLearnerRecords(attendance, ctx.learnerId), portalRecord: recordRows[0] ?? { learnerId: ctx.learnerId, behaviorNotes: "", term1Report: "", term2Report: "", term3Report: "", updatedAt: new Date() } };
+      return { learner: learnerRows[0] ?? null, performance: scopeLearnerRecords(performance, ctx.learnerId), portalRecord: recordRows[0] ?? { learnerId: ctx.learnerId, behaviorNotes: "", term1Report: "", term2Report: "", term3Report: "", updatedAt: new Date() } };
     }),
   }),
   content: router({
