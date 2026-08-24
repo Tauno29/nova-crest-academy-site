@@ -162,3 +162,4 @@
 - [x] Make Admin Panel Lock Exit clear the admin session and return to the admin login page for a fresh sign-in.
 - [x] Display the current live site-alert banner text prominently in the Admin Portal Alert Banner editor.
 - [x] Show the effective homepage alert fallback text and settings in the Admin Alert Banner editor when no saved alert record exists.
+- [x] Add a Learner Portal tab to all public navigation and create a simple page with Student ID and PIN fields only.

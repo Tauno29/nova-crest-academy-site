@@ -11,6 +11,7 @@ import HostelPage from "./pages/HostelPage";
 import GalleryPage from "./pages/GalleryPage";
 import FeesPage from "./pages/FeesPage";
 import AdminPortalPage from "./pages/AdminPortalPage";
+import LearnerPortalPage from "./pages/LearnerPortalPage";
 function Router() {
   // make sure to consider if you need authentication for certain routes
   return (
@@ -20,6 +21,7 @@ function Router() {
       <Route path="/hostel" component={HostelPage} />
       <Route path="/gallery" component={GalleryPage} />
       <Route path="/fees" component={FeesPage} />
+      <Route path="/learner-portal" component={LearnerPortalPage} />
       <Route path="/admin" component={AdminPortalPage} />
       <Route path="/admin/gallery" component={AdminPortalPage} />
       <Route path="/admin/alert" component={AdminPortalPage} />

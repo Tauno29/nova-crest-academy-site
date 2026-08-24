@@ -13,6 +13,7 @@ const links = [
   ["Hostel", "/hostel"],
   ["Gallery", "/gallery"],
   ["Fees", "/fees"],
+  ["Learner Portal", "/learner-portal"],
   ["Admin Panel", "/admin"],
 ] as const;
 
