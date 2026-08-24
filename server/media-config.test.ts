@@ -12,10 +12,12 @@ describe("deployed media configuration", () => {
   it("uses durable WebDev storage paths for all reference media", () => {
     const media = readProjectFile("client/src/lib/media.ts");
 
-    expect(media).toContain("/manus-storage/school-logo_d4c617a1.jpeg");
-    expect(media).toContain("/manus-storage/principal_cd73a969.jpeg");
-    expect(media).toContain("/manus-storage/gallery-1_79981f54.JPG");
-    expect(media).toContain("/manus-storage/gallery-2_55b656ff.JPG");
+    expect(media).toContain("https://kqzopkwtlsyaywkqzjat.supabase.co/storage/v1/object/public/school-images");
+    expect(media).toContain("school-logo.jpeg");
+    expect(media).toContain("principal.jpeg");
+    expect(media).toContain("gallery-1.JPG");
+    expect(media).toContain("gallery-2.JPG");
+    expect(media).not.toContain("/manus-storage/");
     expect(media).not.toContain("novacrestacademy.netlify.app/assets");
   });
 
