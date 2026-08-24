@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { appRouter } from "./routers";
+import { appRouter, learnerCreateInput } from "./routers";
 
 const context = { req: {} as never, res: {} as never, user: null, parentAccountId: null };
 const adminContext = { req: {} as never, res: {} as never, user: { id: 0, openId: "admin:test", name: "Test Admin", email: "admin@example.com", loginMethod: "test", role: "admin", createdAt: new Date(), updatedAt: new Date(), lastSignedIn: new Date() } as never, parentAccountId: null };
@@ -40,6 +40,18 @@ describe("Admin Portal mutation validation", () => {
   it("rejects malformed alert and learner mutation payloads", async () => {
     await expect(caller.admin.alert.save({ enabled: true, message: "", buttonLabel: "Apply", destination: "/admissions" })).rejects.toMatchObject({ code: "BAD_REQUEST" });
     await expect(caller.admin.learners.create({ fullName: "Portal Test", surname: "Learner", studentId: "TEST-001", parentPin: "12", className: "Grade 7A" })).rejects.toMatchObject({ code: "BAD_REQUEST" });
+  });
+
+  it("accepts a legitimate one-character surname and rejects blank surnames", () => {
+    const base = { fullName: "A Learner", studentId: "TEST-002", parentPin: "2468", className: "Grade 7A" };
+    const accepted = learnerCreateInput.safeParse({ ...base, surname: "X" });
+    expect(accepted.success).toBe(true);
+    if (accepted.success) expect(accepted.data.surname).toBe("X");
+    const trimmed = learnerCreateInput.safeParse({ ...base, surname: "  X " });
+    expect(trimmed.success).toBe(true);
+    if (trimmed.success) expect(trimmed.data.surname).toBe("X");
+    const rejected = learnerCreateInput.safeParse({ ...base, surname: "   " });
+    expect(rejected.success).toBe(false);
   });
 
   it("allows deletion inputs only for positive database record IDs", async () => {

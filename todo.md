@@ -167,3 +167,10 @@
 - [x] Add isolation, invalid-credential, and learner-session Vitest coverage for the new portal sign-in flow.
 - [x] Add Vitest tests for learner.login rejecting wrong Student ID and wrong PIN.
 - [x] Add Vitest tests for learner.portal proving results are scoped to ctx.learnerId and cannot return another learner’s performance or attendance records.
+- [x] Fix Admin Learners registration rejecting legitimate one-character surnames, while preserving required-field validation.
+- [x] Add a visible surname field to the Admin Learners registration form and bind it to surname state.
+- [x] Exercise successful one-character surname creation through the Admin Learners form and add matching regression coverage.
+- [x] Add UI/form-level regression coverage proving the visible surname field populates surname state and reaches admin.learners.create.
+- [x] Add a rendered Admin Learners UI test that types a one-character surname and asserts the create mutation payload.
+- [x] Include client UI tests in Vitest discovery and verify the test count increases.
+- [x] Exercise the Admin Learners one-character surname submission in the browser and confirm success.
