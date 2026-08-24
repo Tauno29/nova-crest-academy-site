@@ -13,7 +13,7 @@ import { hasValidLearnerCredentials, scopeLearnerRecords } from "./learnerPortal
 import { getDb } from "./db";
 import { extractClassListRows } from "./classListImport";
 import { storagePut } from "./storage";
-import { attendanceRecords, classes, documents, feeStructures, galleryAssetVisibility, galleryMedia, learners, parentAccountLearners, parentAccounts, performanceEntries, schoolContactInfo, siteAlertConfig, siteContent, urgentUpdateReads, urgentUpdates } from "../drizzle/schema";
+import { attendanceRecords, classes, documents, feeStructures, galleryAssetVisibility, galleryMedia, learnerPortalRecords, learners, parentAccountLearners, parentAccounts, performanceEntries, schoolContactInfo, siteAlertConfig, siteContent, urgentUpdateReads, urgentUpdates } from "../drizzle/schema";
 
 const galleryInput = z.object({ title: z.string().min(1).max(180), category: z.string().min(1).max(80), imageUrl: z.string().url() });
 const galleryUploadInput = z.object({ title: z.string().min(1).max(180), category: z.string().min(1).max(80), filename: z.string().min(1).max(180), mimeType: z.enum(["image/jpeg", "image/png", "image/webp", "image/gif"]), dataUrl: z.string().startsWith("data:").max(8_000_000) });
@@ -43,6 +43,21 @@ export const learnerUpdateInput = z.object({
   className: z.string().min(1).max(80),
   classId: z.number().int().positive().optional(),
 });
+const learnerPortalRecordInput = z.object({
+  learnerId: z.number().int().positive(),
+  behaviorNotes: z.string().max(5000),
+  term1Report: z.string().max(5000),
+  term2Report: z.string().max(5000),
+  term3Report: z.string().max(5000),
+});
+const performanceUpdateInput = z.object({
+  id: z.number().int().positive(),
+  learnerId: z.number().int().positive(),
+  activityName: z.string().min(1).max(160),
+  activityType: z.string().min(1).max(60),
+  marks: z.number().int().min(0),
+  totalMarks: z.number().int().positive(),
+}).refine(value => value.marks <= value.totalMarks, { message: "Marks cannot exceed the total marks." });
 
 const learnerPublicSelection = {
   id: learners.id,
@@ -129,12 +144,13 @@ export const appRouter = router({
     portal: learnerProcedure.query(async ({ ctx }) => {
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." });
-      const [learnerRows, performance, attendance] = await Promise.all([
+      const [learnerRows, performance, attendance, recordRows] = await Promise.all([
         db.select(learnerPublicSelection).from(learners).where(eq(learners.id, ctx.learnerId)).limit(1),
         db.select().from(performanceEntries).where(eq(performanceEntries.learnerId, ctx.learnerId)).orderBy(desc(performanceEntries.performedAt)),
         db.select().from(attendanceRecords).where(eq(attendanceRecords.learnerId, ctx.learnerId)).orderBy(desc(attendanceRecords.attendanceDate)),
+        db.select().from(learnerPortalRecords).where(eq(learnerPortalRecords.learnerId, ctx.learnerId)).limit(1),
       ]);
-      return { learner: learnerRows[0] ?? null, performance: scopeLearnerRecords(performance, ctx.learnerId), attendance: scopeLearnerRecords(attendance, ctx.learnerId) };
+      return { learner: learnerRows[0] ?? null, performance: scopeLearnerRecords(performance, ctx.learnerId), attendance: scopeLearnerRecords(attendance, ctx.learnerId), portalRecord: recordRows[0] ?? { learnerId: ctx.learnerId, behaviorNotes: "", term1Report: "", term2Report: "", term3Report: "", updatedAt: new Date() } };
     }),
   }),
   content: router({
@@ -211,6 +227,27 @@ export const appRouter = router({
         const db = await getDb();
         if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." });
         return db.select(learnerPublicSelection).from(learners).orderBy(learners.className, learners.surname, learners.fullName);
+      }),
+      detail: adminProcedure.input(z.object({ id: z.number().int().positive() })).query(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." });
+        const [learnerRows, performance, attendance, recordRows] = await Promise.all([
+          db.select(learnerPublicSelection).from(learners).where(eq(learners.id, input.id)).limit(1),
+          db.select().from(performanceEntries).where(eq(performanceEntries.learnerId, input.id)).orderBy(desc(performanceEntries.performedAt)),
+          db.select().from(attendanceRecords).where(eq(attendanceRecords.learnerId, input.id)).orderBy(desc(attendanceRecords.attendanceDate)),
+          db.select().from(learnerPortalRecords).where(eq(learnerPortalRecords.learnerId, input.id)).limit(1),
+        ]);
+        if (!learnerRows[0]) throw new TRPCError({ code: "NOT_FOUND", message: "Learner record not found." });
+        return { learner: learnerRows[0], performance, attendance, portalRecord: recordRows[0] ?? { learnerId: input.id, behaviorNotes: "", term1Report: "", term2Report: "", term3Report: "", updatedAt: new Date() } };
+      }),
+      portalRecord: router({
+        save: adminProcedure.input(learnerPortalRecordInput).mutation(async ({ input }) => {
+          const db = await getDb();
+          if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." });
+          const { learnerId, ...recordInput } = input;
+          await db.insert(learnerPortalRecords).values({ learnerId, ...recordInput, updatedAt: new Date() }).onConflictDoUpdate({ target: learnerPortalRecords.learnerId, set: { ...recordInput, updatedAt: new Date() } });
+          return { success: true } as const;
+        }),
       }),
       create: adminProcedure.input(learnerCreateInput).mutation(async ({ input }) => {
         const db = await getDb();
@@ -361,6 +398,19 @@ export const appRouter = router({
         if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." });
         await db.insert(performanceEntries).values(input);
         return { success: true, percentage: Math.round((input.marks / input.totalMarks) * 100) } as const;
+      }),
+      update: adminProcedure.input(performanceUpdateInput).mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." });
+        const { id, learnerId, ...values } = input;
+        await db.update(performanceEntries).set(values).where(and(eq(performanceEntries.id, id), eq(performanceEntries.learnerId, learnerId)));
+        return { success: true } as const;
+      }),
+      remove: adminProcedure.input(z.object({ id: z.number().int().positive(), learnerId: z.number().int().positive() })).mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." });
+        await db.delete(performanceEntries).where(and(eq(performanceEntries.id, input.id), eq(performanceEntries.learnerId, input.learnerId)));
+        return { success: true } as const;
       }),
     }),
     gallery: router({

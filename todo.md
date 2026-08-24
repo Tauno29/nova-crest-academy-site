@@ -180,3 +180,10 @@
 - [x] Add regression tests and responsive verification for learner portal sections and admin learner management.
 - [x] Add rendered Learner Portal coverage for performance, behavior, test marks, exam marks, and term-report sections, including empty states.
 - [x] Verify the Learner Portal section test is discovered and increases the Vitest count.
+- [x] Make each registered learner card clickable and route to a dedicated learner-management detail view.
+- [x] Add protected learner detail retrieval and management inputs for portal-facing records.
+- [x] Build editable Admin sections for performance, behavior, test marks, exam marks, and term reports.
+- [x] Add regression tests and responsive verification for learner-card navigation and detail management.
+- [x] Add protected update/delete procedures for existing performance entries so administrators can correct test and exam marks.
+- [x] Split the learner detail editor into clear Performance, Test Marks, and Exam Marks panels with existing-record edit/delete controls.
+- [x] Add regression tests for editing and deleting an existing learner mark from the dedicated learner-management view.

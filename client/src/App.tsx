@@ -25,6 +25,7 @@ function Router() {
       <Route path="/admin" component={AdminPortalPage} />
       <Route path="/admin/gallery" component={AdminPortalPage} />
       <Route path="/admin/alert" component={AdminPortalPage} />
+      <Route path="/admin/learners/:id" component={AdminPortalPage} />
       <Route path="/admin/learners" component={AdminPortalPage} />
       <Route path="/admin/fees" component={AdminPortalPage} />
       <Route path="/admin/school" component={AdminPortalPage} />

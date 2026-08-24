@@ -4,16 +4,17 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const { createMutate, updateMutate, removeMutate, meQuery, learnersQuery } = vi.hoisted(() => ({
+const { createMutate, updateMutate, removeMutate, meQuery, learnersQuery, navigate } = vi.hoisted(() => ({
   createMutate: vi.fn(),
   updateMutate: vi.fn(),
   removeMutate: vi.fn(),
   meQuery: vi.fn(),
   learnersQuery: vi.fn(),
+  navigate: vi.fn(),
 }));
 
 vi.mock("wouter", () => ({
-  useLocation: () => ["/admin/learners", vi.fn()],
+  useLocation: () => ["/admin/learners", navigate],
   Link: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
@@ -61,6 +62,15 @@ describe("Admin Learners rendered form", () => {
     fireEvent.submit(screen.getByRole("button", { name: "Save to Registry" }).closest("form")!);
 
     expect(createMutate).toHaveBeenCalledWith(expect.objectContaining({ surname: "X", studentId: "TEST-004" }));
+  });
+
+  it("opens the selected learner detail route when the card is clicked", async () => {
+    const user = userEvent.setup();
+    render(<AdminPortalPage />);
+
+    await user.click(screen.getByText("Portal Test X").closest("article")!);
+
+    expect(navigate).toHaveBeenCalledWith("/admin/learners/7");
   });
 
   it("loads a learner into the form and submits an edit without requiring a new PIN", async () => {

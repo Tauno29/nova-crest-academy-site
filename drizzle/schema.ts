@@ -74,6 +74,15 @@ export const attendanceRecords = pgTable("attendance_records", {
   createdAt: timestamp("createdAt", { withTimezone: true }).defaultNow().notNull(),
 });
 
+export const learnerPortalRecords = pgTable("learner_portal_records", {
+  learnerId: integer("learnerId").primaryKey().references(() => learners.id, { onDelete: "cascade" }),
+  behaviorNotes: text("behaviorNotes").default("").notNull(),
+  term1Report: text("term1Report").default("").notNull(),
+  term2Report: text("term2Report").default("").notNull(),
+  term3Report: text("term3Report").default("").notNull(),
+  updatedAt: timestamp("updatedAt", { withTimezone: true }).defaultNow().notNull(),
+});
+
 
 export const siteContent = pgTable("site_content", {
   id: serial("id").primaryKey(),
@@ -121,6 +130,7 @@ export type Class = typeof classes.$inferSelect;
 export type Learner = typeof learners.$inferSelect;
 export type PerformanceEntry = typeof performanceEntries.$inferSelect;
 export type AttendanceRecord = typeof attendanceRecords.$inferSelect;
+export type LearnerPortalRecord = typeof learnerPortalRecords.$inferSelect;
 export type SiteContent = typeof siteContent.$inferSelect;
 export type Document = typeof documents.$inferSelect;
 export type UrgentUpdate = typeof urgentUpdates.$inferSelect;
