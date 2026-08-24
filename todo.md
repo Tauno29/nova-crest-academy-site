@@ -216,3 +216,7 @@
 - [x] Add regression coverage proving homepage gallery entries receive unique keys.
 - [x] Fix Netlify Admin Panel login failing with `Zero-length key is not supported` when JWT_SECRET is missing or empty.
 - [x] Add regression coverage and clear deployment documentation for required authentication environment variables.
+- [x] Replace Forge-dependent managed Gallery Media uploads with server-side Supabase Storage uploads for Netlify.
+- [x] Replace Forge-dependent managed Gallery Media deletion with secure Supabase Storage deletion and retain database cleanup.
+- [x] Add regression coverage for the Supabase-backed Gallery Media upload path.
+- [ ] Add `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` to Netlify Production and redeploy before testing managed Gallery uploads.

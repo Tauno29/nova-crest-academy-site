@@ -13,7 +13,7 @@ import { LEARNER_SESSION_COOKIE, createLearnerSession, getLearnerCookieOptions }
 import { hasValidLearnerCredentials, scopeLearnerRecords } from "./learnerPortal.logic";
 import { getDb } from "./db";
 import { extractClassListRows } from "./classListImport";
-import { storagePut } from "./storage";
+import { storagePut, storageRemoveByPublicUrl } from "./storage";
 import { attendanceRecords, classes, documents, feeStructures, galleryAssetVisibility, galleryMedia, learnerPortalRecords, learners, parentAccountLearners, parentAccounts, performanceEntries, schoolContactInfo, siteAlertConfig, siteContent, urgentUpdateReads, urgentUpdates } from "../drizzle/schema";
 
 const galleryInput = z.object({ title: z.string().min(1).max(180), category: z.string().min(1).max(80), imageUrl: z.string().url() });
@@ -421,7 +421,7 @@ export const appRouter = router({
       list: adminProcedure.query(async () => { const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." }); return db.select().from(galleryMedia).orderBy(desc(galleryMedia.createdAt)); }),
       create: adminProcedure.input(galleryInput).mutation(async ({ input }) => { const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." }); await db.insert(galleryMedia).values(input); return { success: true } as const; }),
       upload: adminProcedure.input(galleryUploadInput).mutation(async ({ input }) => { const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." }); const encoded = input.dataUrl.split(",", 2)[1]; if (!encoded) throw new TRPCError({ code: "BAD_REQUEST", message: "Invalid image data." }); const safeName = input.filename.replace(/[^a-zA-Z0-9._-]/g, "-"); const stored = await storagePut(`gallery/${Date.now()}-${safeName}`, Buffer.from(encoded, "base64"), input.mimeType); await db.insert(galleryMedia).values({ title: input.title, category: input.category, imageUrl: stored.url }); return { success: true, url: stored.url } as const; }),
-      remove: adminProcedure.input(z.object({ id: z.number().int().positive() })).mutation(async ({ input }) => { const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." }); await db.delete(galleryMedia).where(eq(galleryMedia.id, input.id)); return { success: true } as const; }),
+      remove: adminProcedure.input(z.object({ id: z.number().int().positive() })).mutation(async ({ input }) => { const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." }); const existing = (await db.select({ imageUrl: galleryMedia.imageUrl }).from(galleryMedia).where(eq(galleryMedia.id, input.id)).limit(1))[0]; if (existing) await storageRemoveByPublicUrl(existing.imageUrl); await db.delete(galleryMedia).where(eq(galleryMedia.id, input.id)); return { success: true } as const; }),
       hideStatic: adminProcedure.input(z.object({ imageUrl: z.string().url() })).mutation(async ({ input }) => { const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." }); await db.insert(galleryAssetVisibility).values({ imageUrl: input.imageUrl }).onConflictDoNothing(); return { success: true } as const; }),
     }),
     alert: router({

@@ -30,8 +30,8 @@ Add these in Netlify Site configuration → Environment variables. Enter values 
 | `VITE_OAUTH_PORTAL_URL` | Required if using Manus OAuth | OAuth portal URL used by the browser login redirect. |
 | `OAUTH_SERVER_URL` | Required if using Manus OAuth | OAuth backend URL used by the server callback. |
 | `OWNER_OPEN_ID` | Required if using Manus OAuth | Owner identity used by the existing account synchronization logic. |
-| `BUILT_IN_FORGE_API_URL` | Required for managed gallery assets | Storage presign endpoint used by the `/manus-storage/*` proxy. |
-| `BUILT_IN_FORGE_API_KEY` | Required for managed gallery assets | Server-only Forge storage credential. Never expose it as a client variable. |
+| `SUPABASE_URL` | Yes for managed Gallery uploads | Supabase project URL used by the server-side Storage adapter. |
+| `SUPABASE_SERVICE_ROLE_KEY` | Yes for managed Gallery uploads | Server-only Supabase Storage credential used to upload and delete objects. Never expose it as a client variable. |
 | `VITE_EMAILJS_SERVICE_ID` | Yes for Admissions email | EmailJS service identifier embedded in the browser build. |
 | `VITE_EMAILJS_TEMPLATE_ID` | Yes for Admissions email | EmailJS template identifier embedded in the browser build. |
 | `VITE_EMAILJS_PUBLIC_KEY` | Yes for Admissions email | EmailJS browser-safe public key. |
@@ -39,7 +39,7 @@ Add these in Netlify Site configuration → Environment variables. Enter values 
 | `VITE_FRONTEND_FORGE_API_URL` | Optional | Browser-side Forge proxy URL used by the map component; the component has a default. |
 | `VITE_FRONTEND_FORGE_API_KEY` | Optional | Browser-side Forge map key if the map integration is used. |
 
-Netlify environment variables beginning with `VITE_` are included in the public browser bundle. Only use browser-safe values for those variables. Keep `SUPABASE_DATABASE_URL`, `JWT_SECRET`, `NOVA_ADMIN_PASSWORD`, `BUILT_IN_FORGE_API_KEY`, and `EMAILJS_PRIVATE_KEY` server-only.
+Netlify environment variables beginning with `VITE_` are included in the public browser bundle. Only use browser-safe values for those variables. Keep `SUPABASE_DATABASE_URL`, `JWT_SECRET`, `NOVA_ADMIN_PASSWORD`, `SUPABASE_SERVICE_ROLE_KEY`, and `EMAILJS_PRIVATE_KEY` server-only.
 
 ## Routing provided by `netlify.toml`
 
@@ -47,7 +47,7 @@ The first rewrite sends `/api/*` to `/.netlify/functions/api/:splat`. This prese
 
 ## Supabase and storage prerequisites
 
-The Supabase PostgreSQL schema must already be initialized before the first authenticated request. The existing SQL handoff under `docs/` remains the source for a fresh project. Netlify does not migrate database data automatically. Managed gallery files remain in the configured S3-compatible storage service; the Forge storage variables must be configured if those files are used.
+The Supabase PostgreSQL schema must already be initialized before the first authenticated request. The existing SQL handoff under `docs/` remains the source for a fresh project. Netlify does not migrate database data automatically. Managed Gallery files are stored in the public `school-images` Supabase Storage bucket through server-only `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` variables.
 
 ## Important compatibility note
 

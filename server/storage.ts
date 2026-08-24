@@ -1,24 +1,43 @@
-// Preconfigured storage helpers for Manus WebDev templates
-// Uploads via Forge Server presigned URL to S3 (PUT direct).
-// Downloads return /manus-storage/{key} paths served via 307 redirect.
+const DEFAULT_BUCKET = "school-images";
 
-import { ENV } from "./_core/env";
+function getSupabaseStorageConfig() {
+  const supabaseUrl = process.env.SUPABASE_URL?.trim().replace(/\/+$/, "");
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
 
-function getForgeConfig() {
-  const forgeUrl = ENV.forgeApiUrl;
-  const forgeKey = ENV.forgeApiKey;
-
-  if (!forgeUrl || !forgeKey) {
+  if (!supabaseUrl || !serviceRoleKey) {
     throw new Error(
-      "Storage config missing: set BUILT_IN_FORGE_API_URL and BUILT_IN_FORGE_API_KEY",
+      "Supabase Storage config missing: set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in Netlify environment variables.",
     );
   }
 
-  return { forgeUrl: forgeUrl.replace(/\/+$/, ""), forgeKey };
+  return {
+    supabaseUrl,
+    serviceRoleKey,
+    bucket: process.env.SUPABASE_STORAGE_BUCKET?.trim() || DEFAULT_BUCKET,
+  };
 }
 
 function normalizeKey(relKey: string): string {
-  return relKey.replace(/^\/+/, "");
+  const key = relKey.replace(/^\/+/, "");
+  if (!key || key.split("/").some(part => part === "..")) {
+    throw new Error("Invalid storage object path.");
+  }
+  return key;
+}
+
+function encodePath(path: string): string {
+  return path.split("/").map(segment => encodeURIComponent(segment)).join("/");
+}
+
+function publicObjectUrl(supabaseUrl: string, bucket: string, key: string): string {
+  return `${supabaseUrl}/storage/v1/object/public/${encodeURIComponent(bucket)}/${encodePath(key)}`;
+}
+
+function authHeaders(serviceRoleKey: string): Record<string, string> {
+  return {
+    apikey: serviceRoleKey,
+    Authorization: `Bearer ${serviceRoleKey}`,
+  };
 }
 
 function appendHashSuffix(relKey: string): string {
@@ -33,65 +52,72 @@ export async function storagePut(
   data: Buffer | Uint8Array | string,
   contentType = "application/octet-stream",
 ): Promise<{ key: string; url: string }> {
-  const { forgeUrl, forgeKey } = getForgeConfig();
+  const { supabaseUrl, serviceRoleKey, bucket } = getSupabaseStorageConfig();
   const key = appendHashSuffix(normalizeKey(relKey));
+  const objectUrl = `${supabaseUrl}/storage/v1/object/${encodeURIComponent(bucket)}/${encodePath(key)}`;
+  const body = typeof data === "string" ? new Blob([data], { type: contentType }) : new Blob([data as any], { type: contentType });
 
-  // 1. Get presigned PUT URL from Forge
-  const presignUrl = new URL("v1/storage/presign/put", forgeUrl + "/");
-  presignUrl.searchParams.set("path", key);
-
-  const presignResp = await fetch(presignUrl, {
-    headers: { Authorization: `Bearer ${forgeKey}` },
+  const response = await fetch(objectUrl, {
+    method: "POST",
+    headers: {
+      ...authHeaders(serviceRoleKey),
+      "Content-Type": contentType,
+      "x-upsert": "false",
+    },
+    body,
   });
 
-  if (!presignResp.ok) {
-    const msg = await presignResp.text().catch(() => presignResp.statusText);
-    throw new Error(`Storage presign failed (${presignResp.status}): ${msg}`);
+  if (!response.ok) {
+    const message = await response.text().catch(() => response.statusText);
+    throw new Error(`Supabase Storage upload failed (${response.status}): ${message}`);
   }
 
-  const { url: s3Url } = (await presignResp.json()) as { url: string };
-  if (!s3Url) throw new Error("Forge returned empty presign URL");
-
-  // 2. PUT file directly to S3
-  const blob =
-    typeof data === "string"
-      ? new Blob([data], { type: contentType })
-      : new Blob([data as any], { type: contentType });
-
-  const uploadResp = await fetch(s3Url, {
-    method: "PUT",
-    headers: { "Content-Type": contentType },
-    body: blob,
-  });
-
-  if (!uploadResp.ok) {
-    throw new Error(`Storage upload to S3 failed (${uploadResp.status})`);
-  }
-
-  return { key, url: `/manus-storage/${key}` };
+  return { key, url: publicObjectUrl(supabaseUrl, bucket, key) };
 }
 
 export async function storageGet(relKey: string): Promise<{ key: string; url: string }> {
+  const { supabaseUrl, bucket } = getSupabaseStorageConfig();
   const key = normalizeKey(relKey);
-  return { key, url: `/manus-storage/${key}` };
+  return { key, url: publicObjectUrl(supabaseUrl, bucket, key) };
 }
 
 export async function storageGetSignedUrl(relKey: string): Promise<string> {
-  const { forgeUrl, forgeKey } = getForgeConfig();
+  const { supabaseUrl, bucket } = getSupabaseStorageConfig();
+  return publicObjectUrl(supabaseUrl, bucket, normalizeKey(relKey));
+}
+
+export async function storageRemove(relKey: string): Promise<void> {
+  const { supabaseUrl, serviceRoleKey, bucket } = getSupabaseStorageConfig();
   const key = normalizeKey(relKey);
-
-  const getUrl = new URL("v1/storage/presign/get", forgeUrl + "/");
-  getUrl.searchParams.set("path", key);
-
-  const resp = await fetch(getUrl, {
-    headers: { Authorization: `Bearer ${forgeKey}` },
+  const response = await fetch(`${supabaseUrl}/storage/v1/object/${encodeURIComponent(bucket)}`, {
+    method: "DELETE",
+    headers: {
+      ...authHeaders(serviceRoleKey),
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ prefixes: [key] }),
   });
 
-  if (!resp.ok) {
-    const msg = await resp.text().catch(() => resp.statusText);
-    throw new Error(`Storage signed URL failed (${resp.status}): ${msg}`);
+  if (!response.ok) {
+    const message = await response.text().catch(() => response.statusText);
+    throw new Error(`Supabase Storage deletion failed (${response.status}): ${message}`);
+  }
+}
+
+export async function storageRemoveByPublicUrl(imageUrl: string): Promise<void> {
+  const { supabaseUrl, bucket } = getSupabaseStorageConfig();
+  let parsed: URL;
+  try {
+    parsed = new URL(imageUrl, `${supabaseUrl}/`);
+  } catch {
+    return;
   }
 
-  const { url } = (await resp.json()) as { url: string };
-  return url;
+  const prefix = `/storage/v1/object/public/${bucket}/`;
+  if (parsed.origin !== supabaseUrl || !parsed.pathname.startsWith(prefix)) return;
+
+  const encodedKey = parsed.pathname.slice(prefix.length);
+  if (!encodedKey) return;
+  const key = encodedKey.split("/").map(segment => decodeURIComponent(segment)).join("/");
+  await storageRemove(key);
 }
