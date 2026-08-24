@@ -32,6 +32,18 @@ export const learnerCreateInput = z.object({
   classId: z.number().int().positive().optional(),
 });
 
+export const learnerUpdateInput = z.object({
+  id: z.number().int().positive(),
+  fullName: z.string().min(2).max(160),
+  surname: z.string().trim().min(1, "Surname is required.").max(120),
+  studentId: z.string().min(1).max(80),
+  parentPin: z.string().regex(/^\d{4}$/, "Parent PIN must be exactly four digits.").optional(),
+  teacher: z.string().max(160).optional(),
+  subjects: z.string().max(2000).optional(),
+  className: z.string().min(1).max(80),
+  classId: z.number().int().positive().optional(),
+});
+
 const learnerPublicSelection = {
   id: learners.id,
   fullName: learners.fullName,
@@ -205,6 +217,19 @@ export const appRouter = router({
         if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." });
         const { parentPin, ...learnerInput } = input;
         await db.insert(learners).values({ ...learnerInput, parentPinHash: hashParentAccessCode(parentPin) });
+        return { success: true } as const;
+      }),
+      update: adminProcedure.input(learnerUpdateInput).mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." });
+        const { id, parentPin, ...learnerInput } = input;
+        await db.update(learners).set({ ...learnerInput, ...(parentPin ? { parentPinHash: hashParentAccessCode(parentPin) } : {}), updatedAt: new Date() }).where(eq(learners.id, id));
+        return { success: true } as const;
+      }),
+      remove: adminProcedure.input(z.object({ id: z.number().int().positive() })).mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database is not available." });
+        await db.delete(learners).where(eq(learners.id, input.id));
         return { success: true } as const;
       }),
     }),

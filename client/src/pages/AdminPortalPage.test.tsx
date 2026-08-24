@@ -1,12 +1,15 @@
 // @vitest-environment jsdom
 import React from "react";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const { createMutate, meQuery } = vi.hoisted(() => ({
+const { createMutate, updateMutate, removeMutate, meQuery, learnersQuery } = vi.hoisted(() => ({
   createMutate: vi.fn(),
+  updateMutate: vi.fn(),
+  removeMutate: vi.fn(),
   meQuery: vi.fn(),
+  learnersQuery: vi.fn(),
 }));
 
 vi.mock("wouter", () => ({
@@ -21,8 +24,10 @@ vi.mock("@/lib/trpc", () => ({
     admin: {
       logout: { useMutation: () => ({ mutate: vi.fn(), isPending: false }) },
       learners: {
-        list: { useQuery: () => ({ data: [], isLoading: false }) },
+        list: { useQuery: learnersQuery },
         create: { useMutation: () => ({ mutate: createMutate, isPending: false }) },
+        update: { useMutation: () => ({ mutate: updateMutate, isPending: false }) },
+        remove: { useMutation: () => ({ mutate: removeMutate, isPending: false }) },
       },
       classes: {
         list: { useQuery: () => ({ data: [], isLoading: false }) },
@@ -34,9 +39,14 @@ vi.mock("@/lib/trpc", () => ({
 
 import AdminPortalPage from "./AdminPortalPage";
 
+const learnerFixture = { id: 7, fullName: "Portal Test", surname: "X", studentId: "TEST-EDIT-001", teacher: "Teacher", subjects: "English", className: "Grade 1", classId: 1 };
+
+afterEach(() => cleanup());
+
 beforeEach(() => {
   vi.clearAllMocks();
   meQuery.mockReturnValue({ isLoading: false, data: { role: "admin", email: "admin@example.com", name: "Test Admin" } });
+  learnersQuery.mockReturnValue({ data: [learnerFixture], isLoading: false });
 });
 
 describe("Admin Learners rendered form", () => {
@@ -51,5 +61,28 @@ describe("Admin Learners rendered form", () => {
     fireEvent.submit(screen.getByRole("button", { name: "Save to Registry" }).closest("form")!);
 
     expect(createMutate).toHaveBeenCalledWith(expect.objectContaining({ surname: "X", studentId: "TEST-004" }));
+  });
+
+  it("loads a learner into the form and submits an edit without requiring a new PIN", async () => {
+    const user = userEvent.setup();
+    render(<AdminPortalPage />);
+
+    await user.click(screen.getByRole("button", { name: "EDIT" }));
+    expect(screen.getByRole("button", { name: "Update Learner" })).toBeTruthy();
+    await user.clear(screen.getByLabelText("Surname *"));
+    await user.type(screen.getByLabelText("Surname *"), "Y");
+    fireEvent.submit(screen.getByRole("button", { name: "Update Learner" }).closest("form")!);
+
+    expect(updateMutate).toHaveBeenCalledWith(expect.objectContaining({ id: 7, surname: "Y", parentPin: undefined }));
+  });
+
+  it("confirms and submits deletion for the selected learner", async () => {
+    const user = userEvent.setup();
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    render(<AdminPortalPage />);
+
+    await user.click(screen.getByRole("button", { name: "DELETE" }));
+
+    expect(removeMutate).toHaveBeenCalledWith({ id: 7 });
   });
 });

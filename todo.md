@@ -174,3 +174,9 @@
 - [x] Add a rendered Admin Learners UI test that types a one-character surname and asserts the create mutation payload.
 - [x] Include client UI tests in Vitest discovery and verify the test count increases.
 - [x] Exercise the Admin Learners one-character surname submission in the browser and confirm success.
+- [x] Add lightweight learner portal sections for performance, behavior, tests, exams, and term reports.
+- [x] Add protected Admin Registry edit and delete actions for registered learners.
+- [x] Add learner record fields and safe database migration SQL for behavior and term reports if required.
+- [x] Add regression tests and responsive verification for learner portal sections and admin learner management.
+- [x] Add rendered Learner Portal coverage for performance, behavior, test marks, exam marks, and term-report sections, including empty states.
+- [x] Verify the Learner Portal section test is discovered and increases the Vitest count.
