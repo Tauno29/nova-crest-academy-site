@@ -7,6 +7,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { adminProcedure, learnerProcedure, parentProcedure, publicProcedure, router } from "./_core/trpc";
 import { ADMISSIONS_RECIPIENT, sendAdmissionsEmail } from "./emailjs";
 import { ADMIN_SESSION_COOKIE, createAdminSession, generateParentAccessCode, generateParentUsername, getAdminCookieOptions, hashParentAccessCode, validateAdminCredentials } from "./adminAuth";
+import { hasJwtSecret, JWT_CONFIGURATION_ERROR } from "./authSecret";
 import { PARENT_SESSION_COOKIE, createParentSession, getParentCookieOptions } from "./parentAuth";
 import { LEARNER_SESSION_COOKIE, createLearnerSession, getLearnerCookieOptions } from "./learnerAuth";
 import { hasValidLearnerCredentials, scopeLearnerRecords } from "./learnerPortal.logic";
@@ -187,6 +188,9 @@ export const appRouter = router({
       .mutation(async ({ input, ctx }) => {
         if (!validateAdminCredentials(input.email, input.password)) {
           throw new TRPCError({ code: "UNAUTHORIZED", message: "The administrator email or password is incorrect." });
+        }
+        if (!hasJwtSecret()) {
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: JWT_CONFIGURATION_ERROR });
         }
         const token = await createAdminSession(input.email);
         ctx.res.cookie(ADMIN_SESSION_COOKIE, token, getAdminCookieOptions(ctx.req));

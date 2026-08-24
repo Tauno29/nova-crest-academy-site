@@ -9,6 +9,7 @@ import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { ADMIN_SESSION_COOKIE, createAdminSession, getAdminCookieOptions, validateAdminCredentials } from "../adminAuth";
+import { hasJwtSecret, JWT_CONFIGURATION_ERROR } from "../authSecret";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -42,6 +43,10 @@ async function startServer() {
     const password = typeof req.body?.password === "string" ? req.body.password : "";
     if (!validateAdminCredentials(email, password)) {
       res.status(401).json({ error: "The administrator email or password is incorrect." });
+      return;
+    }
+    if (!hasJwtSecret()) {
+      res.status(500).json({ error: JWT_CONFIGURATION_ERROR });
       return;
     }
     const token = await createAdminSession(email);

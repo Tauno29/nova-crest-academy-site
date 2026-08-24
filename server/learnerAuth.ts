@@ -1,23 +1,21 @@
 import { jwtVerify, SignJWT } from "jose";
 import type { Request } from "express";
-import { ENV } from "./_core/env";
 import { getSessionCookieOptions } from "./_core/cookies";
+import { getJwtSecretKey } from "./authSecret";
 
 export const LEARNER_SESSION_COOKIE = "nova_learner_session";
-const key = () => new TextEncoder().encode(ENV.cookieSecret);
-
 export async function createLearnerSession(learnerId: number) {
   return new SignJWT({ role: "learner", learnerId })
     .setProtectedHeader({ alg: "HS256" })
     .setSubject(`learner:${learnerId}`)
     .setIssuedAt()
     .setExpirationTime("12h")
-    .sign(key());
+    .sign(getJwtSecretKey());
 }
 
 export async function verifyLearnerSession(token: string) {
   try {
-    const { payload } = await jwtVerify(token, key());
+    const { payload } = await jwtVerify(token, getJwtSecretKey());
     if (payload.role !== "learner" || typeof payload.learnerId !== "number") return null;
     return { learnerId: payload.learnerId };
   } catch {

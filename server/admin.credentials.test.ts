@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createAdminSession, generateParentAccessCode, generateParentUsername, hashParentAccessCode, validateAdminCredentials, verifyAdminSession } from "./adminAuth";
+import { ENV } from "./_core/env";
+import { JWT_CONFIGURATION_ERROR } from "./authSecret";
 
 const configuredEmail = process.env.NOVA_ADMIN_EMAIL ?? "";
 const configuredPassword = process.env.NOVA_ADMIN_PASSWORD ?? "";
@@ -36,5 +38,12 @@ describe("admin credential configuration", () => {
     const session = await verifyAdminSession(token);
     expect(session).toEqual({ email: configuredEmail });
     expect(token).not.toContain(configuredPassword);
+  });
+
+  it("rejects an empty JWT secret with an actionable configuration error", async () => {
+    const originalSecret = ENV.cookieSecret;
+    ENV.cookieSecret = "";
+    await expect(createAdminSession(configuredEmail)).rejects.toThrow(JWT_CONFIGURATION_ERROR);
+    ENV.cookieSecret = originalSecret;
   });
 });

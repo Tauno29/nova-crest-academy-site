@@ -3,12 +3,9 @@ import { jwtVerify, SignJWT } from "jose";
 import type { Request } from "express";
 import { ENV } from "./_core/env";
 import { getSessionCookieOptions } from "./_core/cookies";
+import { getJwtSecretKey } from "./authSecret";
 
 export const ADMIN_SESSION_COOKIE = "nova_admin_session";
-
-function secretKey() {
-  return new TextEncoder().encode(ENV.cookieSecret);
-}
 
 function safeEqual(left: string, right: string) {
   const leftBuffer = Buffer.from(left);
@@ -29,12 +26,12 @@ export async function createAdminSession(email: string) {
     .setSubject(`admin:${email}`)
     .setIssuedAt()
     .setExpirationTime("8h")
-    .sign(secretKey());
+    .sign(getJwtSecretKey());
 }
 
 export async function verifyAdminSession(token: string) {
   try {
-    const { payload } = await jwtVerify(token, secretKey());
+    const { payload } = await jwtVerify(token, getJwtSecretKey());
     if (payload.role !== "admin" || typeof payload.email !== "string") return null;
     return { email: payload.email };
   } catch {

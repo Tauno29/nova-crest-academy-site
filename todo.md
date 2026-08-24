@@ -214,3 +214,5 @@
 - [x] Replace the remaining legacy Manus favicon path with the public Supabase logo URL.
 - [x] Fix duplicate React keys for repeated homepage gallery image URLs.
 - [x] Add regression coverage proving homepage gallery entries receive unique keys.
+- [x] Fix Netlify Admin Panel login failing with `Zero-length key is not supported` when JWT_SECRET is missing or empty.
+- [x] Add regression coverage and clear deployment documentation for required authentication environment variables.

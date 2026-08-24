@@ -1,18 +1,16 @@
 import { jwtVerify, SignJWT } from "jose";
 import type { Request } from "express";
-import { ENV } from "./_core/env";
 import { getSessionCookieOptions } from "./_core/cookies";
+import { getJwtSecretKey } from "./authSecret";
 
 export const PARENT_SESSION_COOKIE = "nova_parent_session";
-const key = () => new TextEncoder().encode(ENV.cookieSecret);
-
 export async function createParentSession(accountId: number) {
-  return new SignJWT({ role: "parent", accountId }).setProtectedHeader({ alg: "HS256" }).setSubject(`parent:${accountId}`).setIssuedAt().setExpirationTime("12h").sign(key());
+  return new SignJWT({ role: "parent", accountId }).setProtectedHeader({ alg: "HS256" }).setSubject(`parent:${accountId}`).setIssuedAt().setExpirationTime("12h").sign(getJwtSecretKey());
 }
 
 export async function verifyParentSession(token: string) {
   try {
-    const { payload } = await jwtVerify(token, key());
+    const { payload } = await jwtVerify(token, getJwtSecretKey());
     if (payload.role !== "parent" || typeof payload.accountId !== "number") return null;
     return { accountId: payload.accountId };
   } catch { return null; }
