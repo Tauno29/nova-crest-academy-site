@@ -211,3 +211,4 @@
 - [x] Replace the Netlify-only Manus storage requirement with public Supabase Storage URLs; Forge variables are no longer required for the reference images.
 - [x] Diagnose why images remain unavailable after the latest Netlify redeploy.
 - [x] Repair the production image delivery path and validate actual image content types on the live site.
+- [x] Replace the remaining legacy Manus favicon path with the public Supabase logo URL.

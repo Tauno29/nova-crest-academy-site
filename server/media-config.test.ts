@@ -29,6 +29,7 @@ describe("deployed media configuration", () => {
       "client/src/pages/FeesPage.tsx",
       "client/src/pages/InnerPage.tsx",
       "client/src/pages/AdminPortalPage.tsx",
+      "client/index.html",
     ];
 
     for (const pageFile of pageFiles) {
