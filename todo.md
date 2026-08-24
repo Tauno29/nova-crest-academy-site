@@ -197,3 +197,5 @@
 - [x] Validate the Netlify-ready build, tests, and configuration, then save a checkpoint.
 - [x] Add regression coverage for Netlify build settings, API rewrite, SPA fallback, and function entrypoint configuration.
 - [x] Route `/manus-storage/*` through the Netlify API function so managed gallery assets remain accessible after deployment.
+- [ ] Reconcile the complete current project tree with GitHub, including Netlify deployment files, and push any missing changes.
+- [ ] Verify the GitHub branch matches local HEAD and contains no tracked secrets or generated artifacts.
