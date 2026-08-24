@@ -33,7 +33,9 @@ const performanceRecords = [
   { id: 2, learnerId: 7, activityName: "Term 1 Examination", activityType: "Exam", marks: 72, totalMarks: 100, performedAt: new Date("2026-08-02"), createdAt: new Date("2026-08-02") },
 ];
 
-function configurePortal(data: { learner: typeof learner; performance: typeof performanceRecords; attendance: never[] }) {
+type PortalRecord = { learnerId: number; behaviorNotes: string; term1Report: string; term2Report: string; term3Report: string; updatedAt: Date };
+
+function configurePortal(data: { learner: typeof learner; performance: typeof performanceRecords; attendance: never[]; portalRecord?: PortalRecord }) {
   portalQuery.mockReturnValue({ data, isLoading: false });
   loginMutation.mockImplementation((options: { onSuccess?: () => void }) => ({ mutate: () => options.onSuccess?.(), isPending: false }));
   logoutMutation.mockImplementation((options: { onSuccess?: () => void }) => ({ mutate: () => options.onSuccess?.(), isPending: false }));
@@ -69,6 +71,31 @@ describe("Learner Portal dashboard sections", () => {
     expect(screen.getByText("Term 1")).toBeTruthy();
     expect(screen.getByText("Term 2")).toBeTruthy();
     expect(screen.getByText("Term 3")).toBeTruthy();
+  });
+
+  it("renders saved behavior notes and all three term reports", async () => {
+    configurePortal({
+      learner,
+      performance: [],
+      attendance: [],
+      portalRecord: {
+        learnerId: learner.id,
+        behaviorNotes: "Consistently respectful and engaged in class.",
+        term1Report: "Term 1: Strong progress in Mathematics.",
+        term2Report: "Term 2: Improved reading comprehension.",
+        term3Report: "Term 3: Ready for the next year group.",
+        updatedAt: new Date(),
+      },
+    });
+    render(<LearnerPortalPage />);
+    await signIn();
+
+    expect(await screen.findByText("Consistently respectful and engaged in class.")).toBeTruthy();
+    expect(screen.getByText("Term 1: Strong progress in Mathematics.")).toBeTruthy();
+    expect(screen.getByText("Term 2: Improved reading comprehension.")).toBeTruthy();
+    expect(screen.getByText("Term 3: Ready for the next year group.")).toBeTruthy();
+    expect(screen.queryByText("No behavior notes have been published yet.")).toBeNull();
+    expect(screen.queryAllByText("No exam report published yet.")).toHaveLength(0);
   });
 
   it("shows explicit empty states instead of inventing learner records", async () => {

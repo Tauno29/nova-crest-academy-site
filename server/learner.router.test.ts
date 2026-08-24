@@ -20,8 +20,8 @@ const learnerRecord = {
   updatedAt: new Date(),
 };
 
-function controlledDb(rows: { learners?: unknown[]; performance?: unknown[]; attendance?: unknown[] }) {
-  const queryRows = [rows.learners ?? [], rows.performance ?? [], rows.attendance ?? []];
+function controlledDb(rows: { learners?: unknown[]; performance?: unknown[]; attendance?: unknown[]; portalRecords?: unknown[] }) {
+  const queryRows = [rows.learners ?? [], rows.performance ?? [], rows.attendance ?? [], rows.portalRecords ?? []];
   let queryIndex = 0;
   const select = () => ({
     from(_table: unknown) {
@@ -64,10 +64,12 @@ describe("learner router procedures", () => {
       learners: [learnerRecord],
       performance: [{ id: 1, learnerId: 17, activityName: "Math Test", activityType: "Test", marks: 8, totalMarks: 10 }, { id: 2, learnerId: 18, activityName: "Other learner record", activityType: "Test", marks: 10, totalMarks: 10 }],
       attendance: [{ id: 3, learnerId: 17, attendanceDate: new Date(), status: "present" }, { id: 4, learnerId: 18, attendanceDate: new Date(), status: "absent" }],
+      portalRecords: [{ learnerId: 17, behaviorNotes: "Respectful and focused.", term1Report: "Term 1 report", term2Report: "Term 2 report", term3Report: "Term 3 report", updatedAt: new Date() }],
     }));
     const caller = appRouter.createCaller(callerContext());
     const result = await caller.learner.portal();
     expect(result.performance.map(entry => entry.learnerId)).toEqual([17]);
     expect(result.attendance.map(entry => entry.learnerId)).toEqual([17]);
+    expect(result.portalRecord).toMatchObject({ learnerId: 17, behaviorNotes: "Respectful and focused.", term1Report: "Term 1 report", term2Report: "Term 2 report", term3Report: "Term 3 report" });
   });
 });

@@ -63,7 +63,12 @@ export default function LearnerPortalPage() {
   const performance = portal.data?.performance ?? [];
   const tests = performance.filter((entry) => entry.activityType.toLowerCase().includes("test"));
   const exams = performance.filter((entry) => entry.activityType.toLowerCase().includes("exam"));
-  const termReports = ["Term 1", "Term 2", "Term 3"];
+  const portalRecord = portal.data?.portalRecord;
+  const termReports = [
+    { label: "Term 1", value: portalRecord?.term1Report ?? "" },
+    { label: "Term 2", value: portalRecord?.term2Report ?? "" },
+    { label: "Term 3", value: portalRecord?.term3Report ?? "" },
+  ];
 
   return (
     <div className="min-h-screen bg-[#fffaf7] text-[#17263a]">
@@ -113,7 +118,7 @@ export default function LearnerPortalPage() {
                 </div>
                 <div className="rounded-2xl border border-[#eee1d8] p-5">
                   <div className="flex items-center justify-between gap-3"><h2 className="display text-2xl text-[#17263a]">Behavior</h2><span className="rounded-full bg-[#f2f8fc] px-3 py-1 text-xs font-bold text-[#44738c]">school notes</span></div>
-                  <EmptyRecordState>No behavior notes have been published yet.</EmptyRecordState>
+                  {portalRecord?.behaviorNotes?.trim() ? <p className="mt-4 whitespace-pre-wrap rounded-xl bg-[#f2f8fc] px-4 py-4 text-sm leading-6 text-[#315d78]">{portalRecord.behaviorNotes}</p> : <EmptyRecordState>No behavior notes have been published yet.</EmptyRecordState>}
                 </div>
                 <div className="rounded-2xl border border-[#eee1d8] p-5">
                   <div className="flex items-center justify-between gap-3"><h2 className="display text-2xl text-[#17263a]">Test marks</h2><span className="rounded-full bg-[#fff6ef] px-3 py-1 text-xs font-bold text-[#a74714]">{tests.length} records</span></div>
@@ -126,7 +131,7 @@ export default function LearnerPortalPage() {
               </div>
               <div className="mt-5 rounded-2xl border border-[#eee1d8] p-5">
                 <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-center"><div><h2 className="display text-2xl text-[#17263a]">Exam reports by term</h2><p className="mt-1 text-sm text-[#8b7d73]">Term reports will appear here when published by the school.</p></div><span className="rounded-full bg-[#f2f8fc] px-3 py-1 text-xs font-bold text-[#44738c]">3 terms</span></div>
-                <div className="mt-4 grid gap-3 md:grid-cols-3">{termReports.map((term) => <div key={term} className="rounded-xl bg-[#fffaf7] p-4"><p className="font-bold text-[#17263a]">{term}</p><p className="mt-2 text-sm leading-6 text-[#8b7d73]">No exam report published yet.</p></div>)}</div>
+                <div className="mt-4 grid gap-3 md:grid-cols-3">{termReports.map((term) => <div key={term.label} className="rounded-xl bg-[#fffaf7] p-4"><p className="font-bold text-[#17263a]">{term.label}</p>{term.value.trim() ? <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-[#6d625b]">{term.value}</p> : <p className="mt-2 text-sm leading-6 text-[#8b7d73]">No exam report published yet.</p>}</div>)}</div>
               </div>
               <div className="mt-5 rounded-2xl border border-[#eee1d8] p-5">
                 <div className="flex items-center justify-between gap-3"><h2 className="display text-2xl text-[#17263a]">Attendance</h2><span className="rounded-full bg-[#f3fbf5] px-3 py-1 text-xs font-bold text-[#4b805b]">{portal.data?.attendance.length ?? 0} records</span></div>
