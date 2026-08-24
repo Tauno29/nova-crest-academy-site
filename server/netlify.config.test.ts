@@ -15,6 +15,8 @@ describe("Netlify deployment contract", () => {
     expect(config).toContain('command = "pnpm build:netlify"');
     expect(config).toContain('publish = "dist/public"');
     expect(config).toContain('functions = "netlify/functions"');
+    expect(config).toContain('node_bundler = "esbuild"');
+    expect(config).not.toContain("external_node_modules");
     expect(config).toContain('from = "/api/*"');
     expect(config).toContain('to = "/.netlify/functions/api/:splat"');
     expect(config).toContain('from = "/manus-storage/*"');

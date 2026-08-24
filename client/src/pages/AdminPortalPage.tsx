@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Bell, BookOpen, Building2, Camera, FileDown, Image as ImageIcon, LogOut, Menu, Save, School, UserPlus, Users, X } from "lucide-react";
+import { novaMedia } from "@/lib/media";
 import AdminLearnerDetail from "./AdminLearnerDetail";
 
 const navItems = [
@@ -17,18 +18,8 @@ const blue = "#0b67a5";
 const coral = "#f08a62";
 const defaultAlertBanner = { enabled: true, message: "Applications are now OPEN for July 2026 intake — Ages 3 to 4!", buttonLabel: "Apply Now", destination: "/admissions" } as const;
 const existingGalleryAssets = [
-  { id: "legacy-gallery-1", title: "Teachers and learners outside Nova Crest", category: "Academics", imageUrl: "https://novacrestacademy.netlify.app/assets/gallery.JPG" },
-  { id: "legacy-gallery-2", title: "Learners in school uniform", category: "Academics", imageUrl: "https://novacrestacademy.netlify.app/assets/gallery%20(2).JPG" },
-  { id: "legacy-gallery-3", title: "Learners and teacher together", category: "Academics", imageUrl: "https://novacrestacademy.netlify.app/assets/gallery%20(3).JPG" },
-  { id: "legacy-gallery-4", title: "A classroom group photograph", category: "Academics", imageUrl: "https://novacrestacademy.netlify.app/assets/gallery%20(4).JPG" },
-  { id: "legacy-gallery-5", title: "A joyful learner group", category: "Academics", imageUrl: "https://novacrestacademy.netlify.app/assets/gallery%20(5).JPG" },
-  { id: "legacy-gallery-6", title: "Learners gathered around the school bus", category: "Campus", imageUrl: "https://novacrestacademy.netlify.app/assets/gallery%20(6).JPG" },
-  { id: "legacy-gallery-7", title: "Learners playing on the playground", category: "Sports", imageUrl: "https://novacrestacademy.netlify.app/assets/gallery%20(7).JPG" },
-  { id: "legacy-gallery-8", title: "Learners enjoying outdoor play", category: "Sports", imageUrl: "https://novacrestacademy.netlify.app/assets/gallery%20(8).JPG" },
-  { id: "legacy-gallery-9", title: "School sports activity", category: "Sports", imageUrl: "https://novacrestacademy.netlify.app/assets/gallery%20(9).JPG" },
-  { id: "legacy-gallery-10", title: "Learners in school tracksuits", category: "Campus", imageUrl: "https://novacrestacademy.netlify.app/assets/gallery%20(10).JPG" },
-  { id: "legacy-gallery-11", title: "Learners on a school outing", category: "Campus", imageUrl: "https://novacrestacademy.netlify.app/assets/gallery%20(11).JPG" },
-  { id: "legacy-gallery-12", title: "Learners sharing a school meal", category: "Campus", imageUrl: "https://novacrestacademy.netlify.app/assets/gallery%20(12).JPG" },
+  { id: "reference-gallery-1", title: "Teachers and learners outside Nova Crest", category: "Academics", imageUrl: novaMedia.gallery[0] },
+  { id: "reference-gallery-2", title: "Learners in school uniform", category: "Academics", imageUrl: novaMedia.gallery[1] },
 ] as const;
 
 function AdminLogin() {

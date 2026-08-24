@@ -8,7 +8,6 @@
 
 [functions]
   node_bundler = "esbuild"
-  external_node_modules = ["express", "serverless-http"]
 
 # Keep the existing same-origin /api/trpc, /api/oauth, /api/desktop, and
 # /manus-storage paths working through the Netlify Function.

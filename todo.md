@@ -202,3 +202,8 @@
 - [x] Run the Netlify serverless API function locally against the production-style frontend build.
 - [x] Exercise safe API, authentication-rejection, and storage-proxy paths without real email sends or production mutations.
 - [x] Record and repair any serverless-specific issues, then rerun the full local validation suite.
+- [x] Diagnose and fix missing image assets on the deployed Netlify site.
+- [x] Diagnose and fix the Admin Panel “unable to transform response from server” error on Netlify.
+- [x] Validate deployed image requests and Admin API responses, then push the repair to GitHub.
+- [x] Bundle Express and serverless dependencies into the Netlify Function instead of leaving them external.
+- [x] Replace deployed image URLs that resolve to the SPA fallback with stable, deployable asset URLs.

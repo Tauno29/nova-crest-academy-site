@@ -3,8 +3,9 @@ import { Link } from "wouter";
 import { PublicMobileMenu } from "@/components/PublicMobileMenu";
 import { trpc } from "@/lib/trpc";
 import { ArrowLeft, ArrowRight, CheckCircle2, Mail, MapPin, Phone } from "lucide-react";
+import { novaMedia } from "@/lib/media";
 
-const logo = "https://novacrestacademy.netlify.app/assets/School%20Logo.jpeg";
+const logo = novaMedia.logo;
 const pageData = {
   admissions: { kicker: "Admissions", title: "Give your learner a bright place to begin.", intro: "Applications are now open for the July 2026 intake. We welcome curious young minds ages 3 to 4 into a safe, creative, and forward-looking school community.", points: ["A caring, play-based early learning environment", "Small classes with qualified, attentive teachers", "A smooth transition from kindergarten into primary school"] },
   hostel: { kicker: "Hostel Services", title: "A second home for growing minds.", intro: "Our hostel support is designed around safety, routine, and a sense of belonging so learners can focus on friendship, learning, and healthy independence.", points: ["Structured routines and caring supervision", "Comfortable spaces for rest, study, and play", "A supportive community that feels like family"] },

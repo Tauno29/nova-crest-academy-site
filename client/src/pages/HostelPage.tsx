@@ -2,8 +2,9 @@
 import { Link } from "wouter";
 import { PublicMobileMenu } from "@/components/PublicMobileMenu";
 import { ArrowRight, Mail, MapPin, Phone } from "lucide-react";
+import { novaMedia } from "@/lib/media";
 
-const principal = "https://novacrestacademy.netlify.app/assets/Principal.jpeg";
+const principal = novaMedia.principal;
 
 function HostelHeader() { return <><div className="bg-[#005f53] text-[12px] text-white"><div className="mx-auto flex min-h-8 max-w-[1160px] items-center justify-between px-5"><div>📍 Onanda Junction, Ogongo Circuit <span className="mx-2">|</span> 📞 081 800 8007</div><div className="hidden gap-4 sm:flex"><span>novacrestprivateschool@gmail.com</span><span>Reg: CC/20240/1741</span></div></div></div><header className="sticky top-0 z-30 border-b border-[#eee9e4] bg-[#fffdfa]/95 shadow-[0_4px_18px_rgba(39,27,18,.06)] backdrop-blur"><div className="mx-auto flex h-[76px] max-w-[1160px] items-center justify-between px-5"><Link href="/" className="display text-[27px] font-semibold tracking-tight text-[#9a4823]">Nova Crest Academy</Link><nav className="hidden items-center gap-8 text-[16px] md:flex"><Link href="/" className="text-[#3e3833] hover:text-[#9a4823]">Home</Link><Link href="/admissions" className="text-[#3e3833] hover:text-[#9a4823]">Admissions</Link><Link href="/hostel" className="border-b-2 border-[#9a4823] pb-2 font-semibold text-[#9a4823]">Hostel</Link><Link href="/gallery" className="text-[#3e3833] hover:text-[#9a4823]">Gallery</Link><Link href="/fees" className="text-[#3e3833] hover:text-[#9a4823]">Fees</Link><Link href="/learner-portal" className="text-[#3e3833] hover:text-[#9a4823]">Learner Portal</Link><Link href="/admin" className="text-[#3e3833] hover:text-[#9a4823]">Admin Panel</Link><Link href="/admissions" className="pill bg-[#a74714] px-8 py-3 text-sm font-bold text-white shadow-[0_6px_13px_rgba(167,71,20,.2)] hover:bg-[#8d3d12]">Apply Now</Link></nav><PublicMobileMenu /></div></header></> }
 
