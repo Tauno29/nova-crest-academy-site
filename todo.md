@@ -212,3 +212,5 @@
 - [x] Diagnose why images remain unavailable after the latest Netlify redeploy.
 - [x] Repair the production image delivery path and validate actual image content types on the live site.
 - [x] Replace the remaining legacy Manus favicon path with the public Supabase logo URL.
+- [x] Fix duplicate React keys for repeated homepage gallery image URLs.
+- [x] Add regression coverage proving homepage gallery entries receive unique keys.
