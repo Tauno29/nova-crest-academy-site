@@ -187,3 +187,5 @@
 - [x] Add protected update/delete procedures for existing performance entries so administrators can correct test and exam marks.
 - [x] Split the learner detail editor into clear Performance, Test Marks, and Exam Marks panels with existing-record edit/delete controls.
 - [x] Add regression tests for editing and deleting an existing learner mark from the dedicated learner-management view.
+- [ ] Push the latest Nova Crest Academy site code to a private GitHub repository without secrets or generated artifacts.
+- [ ] Verify the GitHub remote contains the latest checkpointed site commit.
