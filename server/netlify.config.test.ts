@@ -28,10 +28,12 @@ describe("Netlify deployment contract", () => {
   it("keeps the Netlify function entrypoint and build script present", () => {
     const packageJson = JSON.parse(readProjectFile("package.json")) as { scripts?: Record<string, string> };
     const functionSource = readProjectFile("netlify/functions/api.ts");
+    const appSource = readProjectFile("server/apiApp.ts");
 
     expect(packageJson.scripts?.["build:netlify"]).toBe("vite build");
     expect(functionSource).toContain('import serverless from "serverless-http"');
-    expect(functionSource).toContain("createExpressMiddleware");
-    expect(functionSource).toContain("export const handler = serverless(app)");
+    expect(functionSource).toContain('import { createApiApp } from "../../server/apiApp"');
+    expect(functionSource).toContain("export const handler = serverless(createApiApp())");
+    expect(appSource).toContain("createExpressMiddleware");
   });
 });

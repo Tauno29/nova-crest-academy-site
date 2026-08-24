@@ -231,3 +231,6 @@
 - [x] Add regression coverage proving Exam marks is absent while other learner sections remain available.
 - [x] Diagnose why Exam marks still appears in the deployed Learner Portal after the previous removal checkpoint.
 - [x] Remove any remaining learner-facing Exam marks references and verify the deployed bundle contains none.
+- [x] Audit Vercel compatibility and identify Netlify-specific deployment assumptions.
+- [x] Add Vercel serverless routing/build configuration while preserving Manus hosting.
+- [x] Document required Vercel environment variables and validate the deployment build and API routes.
