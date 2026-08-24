@@ -62,7 +62,6 @@ export default function LearnerPortalPage() {
   const learner = portal.data?.learner;
   const performance = portal.data?.performance ?? [];
   const tests = performance.filter((entry) => entry.activityType.toLowerCase().includes("test"));
-  const exams = performance.filter((entry) => entry.activityType.toLowerCase().includes("exam"));
   const portalRecord = portal.data?.portalRecord;
   const termReports = [
     { label: "Term 1", value: portalRecord?.term1Report ?? "" },
@@ -109,7 +108,6 @@ export default function LearnerPortalPage() {
               <div className="mt-7 grid gap-4 sm:grid-cols-3">
                 <div className="rounded-2xl border border-[#eee1d8] p-4"><p className="text-xs font-bold uppercase tracking-wide text-[#a98c7f]">Performance</p><p className="mt-2 text-2xl font-extrabold text-[#17263a]">{performance.length}</p><p className="text-xs text-[#8b7d73]">published records</p></div>
                 <div className="rounded-2xl border border-[#eee1d8] p-4"><p className="text-xs font-bold uppercase tracking-wide text-[#a98c7f]">Test marks</p><p className="mt-2 text-2xl font-extrabold text-[#17263a]">{tests.length}</p><p className="text-xs text-[#8b7d73]">published records</p></div>
-                <div className="rounded-2xl border border-[#eee1d8] p-4"><p className="text-xs font-bold uppercase tracking-wide text-[#a98c7f]">Exam marks</p><p className="mt-2 text-2xl font-extrabold text-[#17263a]">{exams.length}</p><p className="text-xs text-[#8b7d73]">published records</p></div>
               </div>
               <div className="mt-7 grid gap-5 lg:grid-cols-2">
                 <div className="rounded-2xl border border-[#eee1d8] p-5">
@@ -123,10 +121,6 @@ export default function LearnerPortalPage() {
                 <div className="rounded-2xl border border-[#eee1d8] p-5">
                   <div className="flex items-center justify-between gap-3"><h2 className="display text-2xl text-[#17263a]">Test marks</h2><span className="rounded-full bg-[#fff6ef] px-3 py-1 text-xs font-bold text-[#a74714]">{tests.length} records</span></div>
                   {tests.length ? <div className="mt-4 space-y-3">{tests.map((entry) => <div key={entry.id} className="flex items-center justify-between gap-3 rounded-xl bg-[#fffaf7] px-3 py-3 text-sm"><div><p className="font-bold text-[#17263a]">{entry.activityName}</p><p className="text-xs text-[#8b7d73]">{new Date(entry.performedAt).toLocaleDateString()}</p></div><span className="font-extrabold text-[#f08a62]">{entry.marks}/{entry.totalMarks}</span></div>)}</div> : <EmptyRecordState>No test marks have been published yet.</EmptyRecordState>}
-                </div>
-                <div className="rounded-2xl border border-[#eee1d8] p-5">
-                  <div className="flex items-center justify-between gap-3"><h2 className="display text-2xl text-[#17263a]">Exam marks</h2><span className="rounded-full bg-[#f3fbf5] px-3 py-1 text-xs font-bold text-[#4b805b]">{exams.length} records</span></div>
-                  {exams.length ? <div className="mt-4 space-y-3">{exams.map((entry) => <div key={entry.id} className="flex items-center justify-between gap-3 rounded-xl bg-[#fffaf7] px-3 py-3 text-sm"><div><p className="font-bold text-[#17263a]">{entry.activityName}</p><p className="text-xs text-[#8b7d73]">{new Date(entry.performedAt).toLocaleDateString()}</p></div><span className="font-extrabold text-[#4b805b]">{entry.marks}/{entry.totalMarks}</span></div>)}</div> : <EmptyRecordState>No exam marks have been published yet.</EmptyRecordState>}
                 </div>
               </div>
               <div className="mt-5 rounded-2xl border border-[#eee1d8] p-5">

@@ -225,3 +225,7 @@
 - [x] Add end-to-end regression coverage for report persistence, portal rendering, and learner isolation.
 - [x] Remove Attendance completely from the Learner Portal UI and learner portal response.
 - [x] Add regression coverage proving Attendance is absent while learner reports remain available.
+- [x] Verify why the live Learner Portal still serves the removed Attendance section.
+- [x] Ensure the latest Attendance removal is built, synchronized, and protected against stale deployment output; the live Netlify redeploy remains a user-side action.
+- [x] Remove Exam marks completely from the Learner Portal UI while preserving Admin Panel marks management.
+- [x] Add regression coverage proving Exam marks is absent while other learner sections remain available.

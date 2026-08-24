@@ -56,7 +56,7 @@ beforeEach(() => {
 });
 
 describe("Learner Portal dashboard sections", () => {
-  it("renders learner details, performance, test marks, exam marks, behavior, and term reports", async () => {
+  it("renders learner details, performance, test marks, behavior, and term reports without exam marks", async () => {
     render(<LearnerPortalPage />);
     await signIn();
 
@@ -64,11 +64,11 @@ describe("Learner Portal dashboard sections", () => {
     expect(screen.getByRole("heading", { name: "Performance" })).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Behavior" })).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Test marks" })).toBeTruthy();
-    expect(screen.getByRole("heading", { name: "Exam marks" })).toBeTruthy();
+    expect(screen.queryByRole("heading", { name: "Exam marks" })).toBeNull();
     expect(screen.getByRole("heading", { name: "Exam reports by term" })).toBeTruthy();
     expect(screen.queryByRole("heading", { name: "Attendance" })).toBeNull();
     expect(screen.getAllByText("Mathematics Test 1")).toHaveLength(2);
-    expect(screen.getAllByText("Term 1 Examination")).toHaveLength(2);
+    expect(screen.getAllByText("Term 1 Examination")).toHaveLength(1);
     expect(screen.getByText("Term 1")).toBeTruthy();
     expect(screen.getByText("Term 2")).toBeTruthy();
     expect(screen.getByText("Term 3")).toBeTruthy();
@@ -106,7 +106,6 @@ describe("Learner Portal dashboard sections", () => {
     expect(await screen.findByText("No performance records have been published yet.")).toBeTruthy();
     expect(screen.getByText("No behavior notes have been published yet.")).toBeTruthy();
     expect(screen.getByText("No test marks have been published yet.")).toBeTruthy();
-    expect(screen.getByText("No exam marks have been published yet.")).toBeTruthy();
     expect(screen.getAllByText("No exam report published yet.")).toHaveLength(3);
   });
 });
