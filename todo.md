@@ -242,3 +242,5 @@
 - [x] Synchronize the Vercel configuration and verify the correct GitHub branch and commit contents.
 - [x] Diagnose the Admin and Learner Portal `Unexpected token` JSON parsing error against the deployed Vercel API.
 - [x] Repair authentication response handling and verify secure Admin and Learner login flows.
+- [x] Diagnose the Vercel `FUNCTION_INVOCATION_FAILED` response for `/api/trpc/learner.login` and `/api/trpc/admin.login`.
+- [x] Repair the serverless runtime failure and verify both portal authentication endpoints return JSON.

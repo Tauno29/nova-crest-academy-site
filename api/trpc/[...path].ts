@@ -1,7 +1,14 @@
-import "dotenv/config";
-import { createApiApp } from "../../server/apiApp";
+import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
+import { appRouter } from "../../server/routers";
+import { createVercelTrpcContext } from "../../server/vercelTrpc";
 
-const app = createApiApp();
-
-export default app;
-
+export default {
+  async fetch(request: Request) {
+    return fetchRequestHandler({
+      endpoint: "/api/trpc",
+      req: request,
+      router: appRouter,
+      createContext: createVercelTrpcContext,
+    });
+  },
+};
