@@ -1,7 +1,9 @@
-/* The public gallery keeps its branded layout while image cards are temporarily removed. */
+/* Public Gallery: renders images uploaded through the protected Admin Panel. */
+import { useMemo, useState } from "react";
 import { Images } from "lucide-react";
 import { Link } from "wouter";
 import { PublicMobileMenu } from "@/components/PublicMobileMenu";
+import { trpc } from "@/lib/trpc";
 
 function GalleryHeader() {
   return (
@@ -74,33 +76,62 @@ function GalleryFooter() {
   );
 }
 
+function GalleryEmptyState({ title = "Gallery images coming soon", description = "Our Gallery is being refreshed. Please check back soon for new photographs from life at Nova Crest Academy." }: { title?: string; description?: string }) {
+  return (
+    <div className="rounded-[2rem] border border-[#eee4dd] bg-white px-6 py-16 text-center shadow-[0_5px_15px_rgba(42,33,24,.05)] sm:px-12 sm:py-24">
+      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#fff1e9] text-[#a74714]"><Images size={28} strokeWidth={1.8} /></div>
+      <h2 className="display mt-6 text-3xl text-[#171411] sm:text-4xl">{title}</h2>
+      <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-[#5d5651]">{description}</p>
+    </div>
+  );
+}
+
 export default function GalleryPage() {
+  const gallery = trpc.publicSite.gallery.useQuery();
+  const [activeCategory, setActiveCategory] = useState("All");
+  const categories = useMemo(() => ["All", ...Array.from(new Set((gallery.data ?? []).map(item => item.category).filter(Boolean)))], [gallery.data]);
+  const visibleItems = useMemo(() => {
+    const rows = gallery.data ?? [];
+    return activeCategory === "All" ? rows : rows.filter(item => item.category === activeCategory);
+  }, [activeCategory, gallery.data]);
+
   return (
     <div className="min-h-screen bg-[#fffaf7] text-[#3d3732]">
       <GalleryHeader />
       <main>
         <section className="mx-auto max-w-[900px] px-5 pb-12 pt-20 text-center sm:pt-24">
           <div className="flex flex-wrap items-center justify-center gap-2">
-            <span className="pill inline-flex items-center gap-2 bg-[#f1de13] px-4 py-2 text-sm font-semibold text-[#221d0f]">
-              <Images size={17} /> VISUAL JOURNEY
-            </span>
+            <span className="pill inline-flex items-center gap-2 bg-[#f1de13] px-4 py-2 text-sm font-semibold text-[#221d0f]"><Images size={17} /> VISUAL JOURNEY</span>
             <h1 className="display text-4xl leading-none text-[#171411] sm:text-5xl">Life at Nova Crest</h1>
           </div>
-          <p className="mx-auto mt-7 max-w-2xl text-base leading-7 text-[#5d5651] sm:text-lg">
-            Explore the vibrant atmosphere where academic excellence meets the joy of discovery through our curated gallery of moments.
-          </p>
+          <p className="mx-auto mt-7 max-w-2xl text-base leading-7 text-[#5d5651] sm:text-lg">Explore the vibrant atmosphere where academic excellence meets the joy of discovery through our curated gallery of moments.</p>
         </section>
 
-        <section className="mx-auto max-w-[1160px] px-5 pb-24">
-          <div className="rounded-[2rem] border border-[#eee4dd] bg-white px-6 py-16 text-center shadow-[0_5px_15px_rgba(42,33,24,.05)] sm:px-12 sm:py-24">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#fff1e9] text-[#a74714]">
-              <Images size={28} strokeWidth={1.8} />
-            </div>
-            <h2 className="display mt-6 text-3xl text-[#171411] sm:text-4xl">Gallery images coming soon</h2>
-            <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-[#5d5651]">
-              Our Gallery is being refreshed. Please check back soon for new photographs from life at Nova Crest Academy.
-            </p>
-          </div>
+        <section className="mx-auto max-w-[1160px] px-5 pb-24" aria-live="polite">
+          {gallery.isLoading && <GalleryEmptyState title="Loading gallery images" description="The latest photographs from Nova Crest Academy are loading." />}
+          {gallery.isError && <GalleryEmptyState title="Gallery temporarily unavailable" description="We could not load the latest gallery images. Please try again shortly." />}
+          {!gallery.isLoading && !gallery.isError && !gallery.data?.length && <GalleryEmptyState />}
+          {!gallery.isLoading && !gallery.isError && Boolean(gallery.data?.length) && (
+            <>
+              <div className="mb-8 flex flex-wrap justify-center gap-3" aria-label="Gallery categories">
+                {categories.map(category => (
+                  <button key={category} type="button" onClick={() => setActiveCategory(category)} className={`pill border px-5 py-2.5 text-sm font-semibold transition ${activeCategory === category ? "border-[#a74714] bg-[#a74714] text-white" : "border-[#e9dcd2] bg-white text-[#6a5c52] hover:border-[#a74714] hover:text-[#a74714]"}`}>
+                    {category}
+                  </button>
+                ))}
+              </div>
+              {visibleItems.length ? (
+                <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                  {visibleItems.map(item => (
+                    <article key={`uploaded-gallery-${item.id}`} className="overflow-hidden rounded-[1.5rem] border border-[#eee4dd] bg-white shadow-[0_5px_15px_rgba(42,33,24,.05)]">
+                      <div className="aspect-[4/3] overflow-hidden bg-[#f4eee9]"><img src={item.imageUrl} alt={item.title} loading="lazy" className="h-full w-full object-cover transition duration-300 hover:scale-[1.03]" /></div>
+                      <div className="p-5"><p className="text-xs font-bold uppercase tracking-[.14em] text-[#a74714]">{item.category}</p><h2 className="display mt-2 text-2xl text-[#171411]">{item.title}</h2></div>
+                    </article>
+                  ))}
+                </div>
+              ) : <GalleryEmptyState title="No images in this category" description="Choose another category to view the photographs currently published by the school." />}
+            </>
+          )}
         </section>
 
         <section className="mx-auto mb-24 max-w-[1160px] px-5">
@@ -109,9 +140,7 @@ export default function GalleryPage() {
             <div className="absolute bottom-0 right-[32%] h-28 w-28 rounded-full bg-[#f58a67]/30" />
             <div className="relative">
               <h2 className="display text-4xl leading-tight sm:text-5xl">See It All For Yourself</h2>
-              <p className="mt-5 max-w-xl text-base leading-7 text-white/85 sm:text-lg">
-                Photographs only tell part of the story. Schedule a personalized tour to experience the energy and warmth of our community in person.
-              </p>
+              <p className="mt-5 max-w-xl text-base leading-7 text-white/85 sm:text-lg">Photographs only tell part of the story. Schedule a personalized tour to experience the energy and warmth of our community in person.</p>
               <div className="mt-8 flex flex-wrap gap-4">
                 <a href="mailto:novacrestprivateschool@gmail.com?subject=Campus%20Tour%20Request" className="pill bg-[#f58a67] px-7 py-4 text-sm font-bold text-[#5a2d20] hover:bg-[#ff9b79]">Book a Campus Tour</a>
                 <Link href="/admissions" className="pill border border-white/30 bg-white/10 px-7 py-4 text-sm font-bold hover:bg-white/15">Contact Admissions</Link>

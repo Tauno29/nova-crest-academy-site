@@ -30,6 +30,17 @@ describe("deployed media configuration", () => {
     expect(home).toContain("src={principal}");
   });
 
+  it("renders Admin-uploaded gallery records on the public Gallery page", () => {
+    const galleryPage = readProjectFile("client/src/pages/GalleryPage.tsx");
+
+    expect(galleryPage).toContain("trpc.publicSite.gallery.useQuery()");
+    expect(galleryPage).toContain("item.imageUrl");
+    expect(galleryPage).toContain("item.title");
+    expect(galleryPage).toContain("uploaded-gallery-${item.id}");
+    expect(galleryPage).toContain("Gallery categories");
+    expect(galleryPage).not.toContain("novaMedia.gallery");
+  });
+
   it("keeps the legacy same-domain asset URL out of page sources", () => {
     const pageFiles = [
       "client/src/pages/Home.tsx",

@@ -254,3 +254,8 @@
 - [x] Remove the entire Learner Gallery section and its images from the homepage while preserving other homepage imagery.
 - [x] Verify the homepage after removal and push the updated source for Netlify deployment.
 - [x] Update the obsolete homepage gallery-key regression test after removing the Learner Gallery section.
+
+## Public uploaded Gallery rendering
+
+- [x] Render gallery images uploaded through the Admin Panel on the public Gallery tab while keeping removed static gallery assets hidden.
+- [x] Add regression coverage and verify the upload-to-public-gallery flow for Netlify deployment.
