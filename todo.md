@@ -240,9 +240,9 @@
 
 ## New Netlify account deployment
 
-- [ ] Deploy the restored Netlify-compatible project to the user’s new Netlify account from private GitHub `main`.
-- [ ] Configure the required Netlify build settings and environment variables for the new site.
-- [ ] Verify the first deployment, public site, assets, and API functions.
+- [x] Deploy the restored Netlify-compatible project to the user’s new Netlify account from private GitHub `main`.
+- [x] Configure the required Netlify build settings and environment variables for the new site.
+- [x] Verify the first deployment, public site, assets, and API functions.
 
 ## Gallery image removal
 

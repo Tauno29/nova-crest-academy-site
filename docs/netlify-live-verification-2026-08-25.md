@@ -1,0 +1,3 @@
+# Netlify live verification — 2026-08-25
+
+The live site `https://novacrestacademy.netlify.app/` loads the restored Nova Crest homepage and exposes the expected navigation, admissions, hostel, gallery, fees, learner portal, and admin panel routes. The homepage text no longer contains the Learner Gallery section. The live Gallery route `https://novacrestacademy.netlify.app/gallery` loads an image-free state reading “Gallery images coming soon” and does not render gallery photo cards. The homepage HTML still references the school logo and principal image from the public Supabase Storage bucket; the browser screenshot showed the hero image area visually blank, so Supabase image delivery should be checked separately before marking asset verification complete.
