@@ -21,13 +21,13 @@ describe("deployed media configuration", () => {
     expect(media).not.toContain("novacrestacademy.netlify.app/assets");
   });
 
-  it("uses unique keys for repeated homepage gallery images", () => {
+  it("removes the homepage Learner Gallery data while preserving other homepage media", () => {
     const home = readProjectFile("client/src/pages/Home.tsx");
-    const repeatedGallery = ["gallery-1.JPG", "gallery-2.JPG", "gallery-1.JPG", "gallery-2.JPG", "gallery-1.JPG"];
-    const keys = repeatedGallery.map((src, index) => `${src}-${index}`);
 
-    expect(new Set(keys).size).toBe(repeatedGallery.length);
-    expect(home).toContain("key={`${src}-${index}`}");
+    expect(home).not.toContain("Learner Gallery");
+    expect(home).not.toContain("novaMedia.gallery");
+    expect(home).toContain("src={logo}");
+    expect(home).toContain("src={principal}");
   });
 
   it("keeps the legacy same-domain asset URL out of page sources", () => {
@@ -46,12 +46,4 @@ describe("deployed media configuration", () => {
     }
   });
 
-  it("removes the Learner Gallery image section from the homepage", () => {
-    const home = readProjectFile("client/src/pages/Home.tsx");
-
-    expect(home).not.toContain("Learner Gallery");
-    expect(home).not.toContain("novaMedia.gallery");
-    expect(home).toContain('src={logo}');
-    expect(home).toContain('src={principal}');
-  });
 });
