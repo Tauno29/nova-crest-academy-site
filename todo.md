@@ -248,3 +248,8 @@
 
 - [x] Remove all currently displayed Gallery images from the public website while preserving the logo, homepage hero, favicon, and other imagery.
 - [x] Verify the Gallery page has no displayed image cards and save the updated change for GitHub deployment.
+
+## Homepage Learner Gallery removal
+
+- [x] Remove the entire Learner Gallery section and its images from the homepage while preserving other homepage imagery.
+- [x] Verify the homepage after removal and push the updated source for Netlify deployment.

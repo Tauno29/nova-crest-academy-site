@@ -45,4 +45,13 @@ describe("deployed media configuration", () => {
       expect(readProjectFile(pageFile)).not.toContain("novacrestacademy.netlify.app/assets");
     }
   });
+
+  it("removes the Learner Gallery image section from the homepage", () => {
+    const home = readProjectFile("client/src/pages/Home.tsx");
+
+    expect(home).not.toContain("Learner Gallery");
+    expect(home).not.toContain("novaMedia.gallery");
+    expect(home).toContain('src={logo}');
+    expect(home).toContain('src={principal}');
+  });
 });
