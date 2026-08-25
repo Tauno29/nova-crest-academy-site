@@ -231,3 +231,9 @@
 - [x] Add regression coverage proving Exam marks is absent while other learner sections remain available.
 - [x] Diagnose why Exam marks still appears in the deployed Learner Portal after the previous removal checkpoint.
 - [x] Remove any remaining learner-facing Exam marks references and verify the deployed bundle contains none.
+
+## Vercel rollback
+
+- [x] Revert all Vercel-specific deployment configuration, API routes, runtime adapters, tests, documentation, and scripts to the last pre-Vercel project state.
+- [x] Verify the restored project has no remaining Vercel references in application code or deployment files and preserves the Nova Crest site and portal features.
+- [x] Run the restored regression suite, TypeScript check, and standard production build; the live Supabase check remains skipped because the sandbox credential is stale.
