@@ -237,3 +237,14 @@
 - [x] Revert all Vercel-specific deployment configuration, API routes, runtime adapters, tests, documentation, and scripts to the last pre-Vercel project state.
 - [x] Verify the restored project has no remaining Vercel references in application code or deployment files and preserves the Nova Crest site and portal features.
 - [x] Run the restored regression suite, TypeScript check, and standard production build; the live Supabase check remains skipped because the sandbox credential is stale.
+
+## New Netlify account deployment
+
+- [ ] Deploy the restored Netlify-compatible project to the user’s new Netlify account from private GitHub `main`.
+- [ ] Configure the required Netlify build settings and environment variables for the new site.
+- [ ] Verify the first deployment, public site, assets, and API functions.
+
+## Gallery image removal
+
+- [x] Remove all currently displayed Gallery images from the public website while preserving the logo, homepage hero, favicon, and other imagery.
+- [x] Verify the Gallery page has no displayed image cards and save the updated change for GitHub deployment.
