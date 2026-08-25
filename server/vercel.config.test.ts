@@ -31,12 +31,15 @@ describe("Vercel deployment contract", () => {
   it("keeps the shared Express/tRPC API as a Vercel catch-all function", () => {
     const packageJson = JSON.parse(readProjectFile("package.json")) as { scripts?: Record<string, string> };
     const functionSource = readProjectFile("api/[...path].ts");
+    const trpcFunctionSource = readProjectFile("api/trpc/[...path].ts");
     const appSource = readProjectFile("server/apiApp.ts");
 
     expect(packageJson.scripts?.["build:vercel"]).toBe("vite build --outDir dist");
     expect(packageJson.scripts?.["vercel-build"]).toBe("vite build --outDir dist");
     expect(functionSource).toContain('import { createApiApp } from "../server/apiApp"');
     expect(functionSource).toContain("export default app");
+    expect(trpcFunctionSource).toContain('import { createApiApp } from "../../server/apiApp"');
+    expect(trpcFunctionSource).toContain("export default app");
     expect(appSource).toContain('"/api/trpc"');
     expect(appSource).toContain('"/api/desktop/login"');
   });
