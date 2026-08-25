@@ -4,18 +4,20 @@ import { Images } from "lucide-react";
 import { Link } from "wouter";
 import { PublicMobileMenu } from "@/components/PublicMobileMenu";
 import { trpc } from "@/lib/trpc";
+import { usePublicContact } from "@/lib/publicContact";
 
 function GalleryHeader() {
+  const contact = usePublicContact();
   return (
     <>
       <div className="bg-[#005f53] text-[12px] text-white">
         <div className="mx-auto flex min-h-8 max-w-[1160px] items-center justify-between px-5">
           <div>
-            📍 Onanda Junction, Ogongo Circuit <span className="mx-2">|</span> 📞 081 800 8007
+            📍 {contact.location} <span className="mx-2">|</span> 📞 {contact.phone}
           </div>
           <div className="hidden gap-4 sm:flex">
-            <span>novacrestprivateschool@gmail.com</span>
-            <span>Reg: CC/20240/1741</span>
+            <span>{contact.email}</span>
+            <span>Reg: {contact.registrationNumber}</span>
           </div>
         </div>
       </div>
@@ -43,6 +45,7 @@ function GalleryHeader() {
 }
 
 function GalleryFooter() {
+  const contact = usePublicContact();
   return (
     <footer className="bg-[#101c2c] py-14 text-white">
       <div className="mx-auto grid max-w-[1160px] gap-10 px-5 md:grid-cols-[1.4fr_1fr_1fr]">
@@ -71,7 +74,7 @@ function GalleryFooter() {
           </div>
         </div>
       </div>
-      <div className="mx-auto mt-10 max-w-[1160px] border-t border-white/10 px-5 pt-6 text-xs text-white/40">© 2024 Nova Crest Academy Private School. All rights reserved.</div>
+      <div className="mx-auto mt-10 max-w-[1160px] border-t border-white/10 px-5 pt-6 text-xs text-white/40">© 2024 Nova Crest Academy Private School. All rights reserved. · {contact.location} · {contact.phone} · {contact.email}</div>
     </footer>
   );
 }
@@ -87,6 +90,7 @@ function GalleryEmptyState({ title = "Gallery images coming soon", description =
 }
 
 export default function GalleryPage() {
+  const contact = usePublicContact();
   const gallery = trpc.publicSite.gallery.useQuery();
   const [activeCategory, setActiveCategory] = useState("All");
   const categories = useMemo(() => ["All", ...Array.from(new Set((gallery.data ?? []).map(item => item.category).filter(Boolean)))], [gallery.data]);
@@ -142,7 +146,7 @@ export default function GalleryPage() {
               <h2 className="display text-4xl leading-tight sm:text-5xl">See It All For Yourself</h2>
               <p className="mt-5 max-w-xl text-base leading-7 text-white/85 sm:text-lg">Photographs only tell part of the story. Schedule a personalized tour to experience the energy and warmth of our community in person.</p>
               <div className="mt-8 flex flex-wrap gap-4">
-                <a href="mailto:novacrestprivateschool@gmail.com?subject=Campus%20Tour%20Request" className="pill bg-[#f58a67] px-7 py-4 text-sm font-bold text-[#5a2d20] hover:bg-[#ff9b79]">Book a Campus Tour</a>
+                <a href={`mailto:${encodeURIComponent(contact.email)}?subject=Campus%20Tour%20Request`} className="pill bg-[#f58a67] px-7 py-4 text-sm font-bold text-[#5a2d20] hover:bg-[#ff9b79]">Book a Campus Tour</a>
                 <Link href="/admissions" className="pill border border-white/30 bg-white/10 px-7 py-4 text-sm font-bold hover:bg-white/15">Contact Admissions</Link>
               </div>
             </div>

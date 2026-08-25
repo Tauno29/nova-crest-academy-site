@@ -264,3 +264,8 @@
 
 - [x] Change the displayed principal name from “Mr Nakasole” to “Mr Tauno Nakasole” throughout the website.
 - [x] Verify the updated principal section and push the change for Netlify deployment.
+
+## School Contact Info synchronization
+
+- [x] Diagnose why Admin Panel School Contact Info changes are not appearing on public pages.
+- [x] Repair persistence, cache invalidation, and public rendering, then verify the save-to-site flow.

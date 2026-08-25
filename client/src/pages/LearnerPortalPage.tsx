@@ -2,12 +2,14 @@ import React, { useState } from "react";
 import { Link } from "wouter";
 import { PublicMobileMenu } from "@/components/PublicMobileMenu";
 import { trpc } from "@/lib/trpc";
+import { usePublicContact } from "@/lib/publicContact";
 
 function LearnerHeader() {
+  const contact = usePublicContact();
   return (
     <>
       <div className="bg-[#005f53] py-2 text-center text-[11px] text-white sm:text-xs">
-        📍 Onanda Junction, Ogongo Circuit <span className="mx-2">|</span> 📞 081 800 8007
+        📍 {contact.location} <span className="mx-2">|</span> 📞 {contact.phone}
       </div>
       <header className="sticky top-0 z-30 border-b border-[#eee9e4] bg-[#fffdfa]/95 shadow-[0_4px_18px_rgba(39,27,18,.06)] backdrop-blur">
         <div className="mx-auto flex h-[76px] max-w-[1160px] items-center justify-between px-5">
