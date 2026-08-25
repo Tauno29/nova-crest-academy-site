@@ -21,7 +21,7 @@ describe("Vercel deployment contract", () => {
     expect(config.framework).toBe("vite");
     expect(config.buildCommand).toBe("pnpm build:vercel");
     expect(config.installCommand).toBe("pnpm install --frozen-lockfile");
-    expect(config.outputDirectory).toBe("dist/public");
+    expect(config.outputDirectory).toBe("client/dist");
     expect(config.rewrites).toContainEqual({
       source: "/((?!api/).*)",
       destination: "/index.html",
@@ -33,7 +33,8 @@ describe("Vercel deployment contract", () => {
     const functionSource = readProjectFile("api/[...path].ts");
     const appSource = readProjectFile("server/apiApp.ts");
 
-    expect(packageJson.scripts?.["build:vercel"]).toBe("vite build");
+    expect(packageJson.scripts?.["build:vercel"]).toBe("vite build --outDir dist");
+    expect(packageJson.scripts?.["vercel-build"]).toBe("vite build --outDir dist");
     expect(functionSource).toContain('import { createApiApp } from "../server/apiApp"');
     expect(functionSource).toContain("export default app");
     expect(appSource).toContain('"/api/trpc"');

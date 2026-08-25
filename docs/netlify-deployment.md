@@ -10,11 +10,11 @@ Use the GitHub repository `Tauno29/nova-crest-academy-site` and the `main` branc
 |---|---|
 | Framework preset | Vite |
 | Build command | `pnpm build:vercel` |
-| Output directory | `dist/public` |
+| Output directory | `client/dist` |
 | Install command | `pnpm install --frozen-lockfile` |
 | Node version | `22.x` |
 
-The public reference images already use public Supabase Storage URLs, so they do not require Manus Forge credentials. Managed Gallery uploads use the server-only `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` variables.
+The public reference images already use public Supabase Storage URLs, so they do not require Manus Forge credentials. Managed Gallery uploads use the server-only `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` variables. Because the Vite root is `client/`, the generated frontend is located at `client/dist`; the repository’s `vercel-build` script (`vite build --outDir dist`) and `vercel.json` both target this path so Vercel cannot publish the server bundle instead of the frontend.
 
 Vercel environment variables should use the same names and values documented below. Add them for the Production environment before the first deployment. Never expose server-only values through a `VITE_` variable.
 

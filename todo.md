@@ -234,3 +234,7 @@
 - [x] Audit Vercel compatibility and identify Netlify-specific deployment assumptions.
 - [x] Add Vercel serverless routing/build configuration while preserving Manus hosting.
 - [x] Document required Vercel environment variables and validate the deployment build and API routes.
+- [x] Diagnose why the deployed Vercel root is serving bundled server code instead of the site HTML.
+- [x] Correct Vercel output and routing so `/` serves `client/dist/index.html` and `/api/*` reaches the serverless function.
+- [x] Validate the Vercel deployment contract and browser-facing content types after the routing repair.
+- [x] Make the live Supabase connection smoke test opt-in so stale local credentials do not block deterministic Vercel build validation.
