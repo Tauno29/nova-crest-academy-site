@@ -1,23 +1,4 @@
-# External deployment guide
-
-This project can be hosted on Manus, Netlify, or Vercel. Manus hosting remains the lowest-configuration option. The sections below document the external-host settings for the current full-stack API.
-
-## Vercel deployment guide
-
-Use the GitHub repository `Tauno29/nova-crest-academy-site` and the `main` branch. The repository includes `vercel.json`, which configures the Vite build output and the catch-all Vercel Node function at `api/[...path].ts`.
-
-| Setting | Value |
-|---|---|
-| Framework preset | Vite |
-| Build command | `pnpm build:vercel` |
-| Output directory | `client/dist` |
-| Install command | `pnpm install --frozen-lockfile` |
-| Node version | `22.x` |
-
-The public reference images already use public Supabase Storage URLs, so they do not require Manus Forge credentials. Managed Gallery uploads use the server-only `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` variables. Because the Vite root is `client/`, the generated frontend is located at `client/dist`; the repository’s `vercel-build` script (`vite build --outDir dist`) and `vercel.json` both target this path so Vercel cannot publish the server bundle instead of the frontend.
-
-Vercel environment variables should use the same names and values documented below. Add them for the Production environment before the first deployment. Never expose server-only values through a `VITE_` variable.
-
+# Netlify deployment guide
 
 This project is prepared for Netlify deployment but is **not published by this change**. Netlify can host the Vite frontend and expose the Express/tRPC API through a serverless function. The project keeps the existing local full-stack build and adds a Netlify-specific frontend build.
 
