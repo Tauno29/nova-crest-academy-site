@@ -259,3 +259,8 @@
 
 - [x] Render gallery images uploaded through the Admin Panel on the public Gallery tab while keeping removed static gallery assets hidden.
 - [x] Add regression coverage and verify the upload-to-public-gallery flow for Netlify deployment.
+
+## Principal name update
+
+- [x] Change the displayed principal name from “Mr Nakasole” to “Mr Tauno Nakasole” throughout the website.
+- [x] Verify the updated principal section and push the change for Netlify deployment.

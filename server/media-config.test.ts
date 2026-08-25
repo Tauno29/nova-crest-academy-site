@@ -28,6 +28,8 @@ describe("deployed media configuration", () => {
     expect(home).not.toContain("novaMedia.gallery");
     expect(home).toContain("src={logo}");
     expect(home).toContain("src={principal}");
+    expect(home).toContain("Mr Tauno Nakasole");
+    expect(home).not.toContain("Mr Nakasole");
   });
 
   it("renders Admin-uploaded gallery records on the public Gallery page", () => {
