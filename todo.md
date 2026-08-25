@@ -238,3 +238,5 @@
 - [x] Correct Vercel output and routing so `/` serves `client/dist/index.html` and `/api/*` reaches the serverless function.
 - [x] Validate the Vercel deployment contract and browser-facing content types after the routing repair.
 - [x] Make the live Supabase connection smoke test opt-in so stale local credentials do not block deterministic Vercel build validation.
+- [ ] Diagnose why the latest Vercel configuration checkpoint is not visible as a recent GitHub change.
+- [ ] Synchronize the Vercel configuration and verify the correct GitHub branch and commit contents.
