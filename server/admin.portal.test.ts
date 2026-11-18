@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { appRouter, learnerCreateInput } from "./routers";
+import { appRouter, galleryAssetVisibilityInput, learnerCreateInput } from "./routers";
 
 const context = { req: {} as never, res: {} as never, user: null, parentAccountId: null };
 const adminContext = { req: {} as never, res: {} as never, user: { id: 0, openId: "admin:test", name: "Test Admin", email: "admin@example.com", loginMethod: "test", role: "admin", createdAt: new Date(), updatedAt: new Date(), lastSignedIn: new Date() } as never, parentAccountId: null };
@@ -57,6 +57,12 @@ describe("Admin Portal mutation validation", () => {
   it("allows deletion inputs only for positive database record IDs", async () => {
     await expect(caller.admin.gallery.remove({ id: 0 })).rejects.toMatchObject({ code: "BAD_REQUEST" });
     await expect(caller.admin.gallery.remove({ id: -1 })).rejects.toMatchObject({ code: "BAD_REQUEST" });
+  });
+
+  it("accepts same-site asset paths when hiding bundled gallery assets", () => {
+    expect(galleryAssetVisibilityInput.safeParse({ imageUrl: "/assets/school-logo.png" }).success).toBe(true);
+    expect(galleryAssetVisibilityInput.safeParse({ imageUrl: "https://cdn.example.com/photo.jpg" }).success).toBe(true);
+    expect(galleryAssetVisibilityInput.safeParse({ imageUrl: "not-a-url" }).success).toBe(false);
   });
 
   it("rejects invalid fee and school-contact mutation payloads", async () => {
