@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-describe("public Supabase configuration", () => {
+describe.skipIf(!process.env.RUN_LIVE_SUPABASE_TESTS)("public Supabase configuration", () => {
   it("authenticates against the Supabase REST endpoint", async () => {
     const projectUrl = process.env.VITE_SUPABASE_URL;
     const anonKey = process.env.VITE_SUPABASE_ANON_KEY;

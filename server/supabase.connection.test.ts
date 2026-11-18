@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import postgres from "postgres";
 
-describe.skipIf(!process.env.SUPABASE_DATABASE_URL)("Supabase database configuration", () => {
+describe.skipIf(!process.env.RUN_LIVE_SUPABASE_TESTS || !process.env.SUPABASE_DATABASE_URL)("Supabase database configuration", () => {
   it("connects to PostgreSQL and responds to a lightweight query", async () => {
     const url = process.env.SUPABASE_DATABASE_URL;
     expect(url).toBeTruthy();

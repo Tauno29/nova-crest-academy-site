@@ -1,13 +1,13 @@
-// Public Supabase Storage URLs for reference-site media.
-// These URLs are intentionally independent of the Manus-only storage proxy so
-// the same images work on the external Netlify deployment.
-const supabaseStorageBase = "https://kqzopkwtlsyaywkqzjat.supabase.co/storage/v1/object/public/school-images";
+// Critical school identity media is bundled with the site so the public pages do
+// not fail when an external Supabase project is paused, renamed, or unavailable.
+// Admin-uploaded Gallery media remains database-driven in GalleryPage.tsx.
+const publicAsset = (name: string) => `/assets/${name}`;
 
 export const novaMedia = {
-  logo: `${supabaseStorageBase}/school-logo.jpeg`,
-  principal: `${supabaseStorageBase}/principal.jpeg`,
+  logo: publicAsset("school-logo.png"),
+  principal: publicAsset("principal.png"),
   gallery: [
-    `${supabaseStorageBase}/gallery-1.JPG`,
-    `${supabaseStorageBase}/gallery-2.JPG`,
+    publicAsset("principal.png"),
+    publicAsset("school-logo.png"),
   ],
 } as const;
